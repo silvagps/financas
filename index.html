@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odair Silva - Afiliado ML</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background: #f5f5f5; color: #333; }
+    .ml-header { background: #FFE600; padding: 10px 0; position: sticky; top: 0; z-index: 10; }
+    .ml-header .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; display: flex; align-items: center; }
+    .ml-logo { font-size: 28px; font-weight: bold; }
+    .ml-search { flex: 1; display: flex; align-items: center; background: white; border-radius: 2px; margin-left: 30px; overflow: hidden; }
+    .ml-search input { flex: 1; border: none; padding: 10px 15px; font-size: 16px; outline: none; }
+    .ml-search button { background: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 18px; color: #666; }
+    .restricted-area { max-width: 1200px; margin: 20px auto; padding: 20px; background: #fff; border: 2px dashed #FFE600; border-radius: 6px; }
+    .name-input-group { display: flex; gap: 10px; margin: 10px 0; }
+    .name-input-group input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; }
+    .name-input-group button { padding: 8px 20px; background: #3483fa; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .error-msg { color: #d32f2f; display: none; font-size: 14px; margin-top: 5px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+    .product-card { background: white; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer; display: block; text-decoration: none; color: inherit; }
+    .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .product-card img { width: 100%; height: 250px; object-fit: contain; background: #fafafa; padding: 10px; }
+    .product-info { padding: 12px 15px 15px; }
+    .product-name { font-size: 14px; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-price { font-size: 22px; }
+    .product-installments { font-size: 13px; color: #00a650; margin-top: 4px; }
+    .product-shipping { font-size: 12px; color: #00a650; font-weight: bold; }
+    .product-click-hint { font-size: 13px; color: #3483fa; margin-top: 6px; font-weight: 500; cursor: pointer; }
+    #secret-products { display: none; margin-top: 30px; }
+    footer { text-align: center; padding: 30px; color: #999; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header class="ml-header">
+    <div class="container">
+      <span class="ml-logo">🛒 Odair Silva</span>
+      <div class="ml-search">
+        <input type="text" placeholder="Buscar produtos...">
+        <button>🔍</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="restricted-area">
+    <h3>🔒 Área exclusiva para clientes</h3>
+    <p>Digite seu nome para ver seus produtos personalizados:</p>
+    <div class="name-input-group">
+      <input type="text" id="clientName" placeholder="Seu nome...">
+      <button onclick="checkClientName()">Acessar</button>
+    </div>
+    <p class="error-msg" id="errorMsg">Nome não encontrado.</p>
+  </section>
+
+  <h2 style="max-width:1200px; margin:20px auto 0; padding:0 15px;">📦 Ofertas do dia - Esses valores podem sofrer variações</h2>
+  <div class="products-grid" id="public-products"></div>
+
+  <div id="secret-products">
+    <h2 style="max-width:1200px; margin:0 auto 10px; padding:0 15px;">🔓 Seus produtos exclusivos</h2>
+    <div class="products-grid" id="secret-products-grid"></div>
+  </div>
+
+  <footer>Afiliado Mercado Livre — ao clicar você será direcionado ao site oficial.</footer>
+
+  <script>
+    // ============================================================
+    // 🚨 COLE AQUI SEUS PRODUTOS
+    //    Adicione "secretNames": "nome1, nome2" para liberar acesso
+    // ============================================================
+    const PUBLIC_PRODUCTS = [
+      {
+        "id": "MLB41221309",
+        "title": "Kit 3x Perfumes Colônia Miniatura Cebolinha Turma Da Mônica Jequiti De 25ml",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_855393-MLA109559501011_032026-O.webp",
+        "price": "R$ 60,00",
+        "installments": "12x R$ 6,00",
+        "freeShipping": true,
+        "link": "https://meli.la/2KeefPN",
+        "secretNames": "odair silva, maria oliveira"   // ← exemplo
+      },
+      {
+        "id": "MLB55762063",
+        "title": "Smartphone Motorola Moto G06 - 256gb 12gb ...",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_793349-MLA91806774304_092025-O.webp",
+        "price": "R$ 746,49",
+        "installments": "10x R$ 82,94",
+        "freeShipping": true,
+        "link": "https://meli.la/2LR8GNA",
+        "secretNames": "joão silva"                    // ← somente João vê
+      },
+      {
+        "id": "MLB8923630",
+        "title": "Aspirador De Pó e Água Wap Gtw 10 Compacto...",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_944970-MLA99949674111_112025-O.webp",
+        "price": "R$ 216,60",
+        "installments": "ou R$ 228,00",
+        "freeShipping": true,
+        "link": "https://meli.la/24V4i2L"
+        // sem "secretNames" → ninguém vê na lista secreta
+      },
+      {
+        "id": "MLB27821077",
+        "title": "Mini Compressor Digital Simake...",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_900674-MLA100087555981_122025-O.webp",
+        "price": "R$ 76,99",
+        "installments": "12x R$ 7,58",
+        "freeShipping": true,
+        "link": "https://meli.la/...",
+        "secretNames": "odair silva, carlos"           // ← Odair e Carlos veem
+      },
+      {
+        "id": "MLB4237089163",
+        "title": "Perfume Árabe Lattafa Fakhar Gold...",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_893268-MLB94221142411_102025-O.webp",
+        "price": "R$ 182,39",
+        "installments": "",
+        "freeShipping": false,
+        "link": "https://meli.la/31d7N67",
+        "secretNames": "odair silva"                   // ← só Odair vê
+      }
+    ];
+
+    // ============================================================
+    // CONSTRUÇÃO AUTOMÁTICA DA LISTA SECRETA
+    // ============================================================
+    let secretLists = {};
+
+    function buildSecretLists() {
+      const map = {};
+      PUBLIC_PRODUCTS.forEach(prod => {
+        if (prod.secretNames) {
+          // Divide por vírgula, limpa espaços, normaliza
+          prod.secretNames.split(',').forEach(rawName => {
+            const norm = rawName.trim().toLowerCase().replace(/\s+/g, ' ');
+            if (norm) {
+              if (!map[norm]) map[norm] = [];
+              map[norm].push(prod.id);
+            }
+          });
+        }
+      });
+      secretLists = map;
+    }
+
+    // ============================================================
+    // RENDERIZAÇÃO
+    // ============================================================
+    function criarCard(prod) {
+      const card = document.createElement('a');
+      card.className = 'product-card';
+      card.href = '#';
+      card.onclick = e => {
+        e.preventDefault();
+        window.open(prod.link, '_blank', 'noopener');
+      };
+
+      let detalhes = '';
+      if (prod.installments) {
+        detalhes += `<div class="product-installments">${prod.installments}</div>`;
+      }
+      if (prod.freeShipping) {
+        detalhes += '<div class="product-shipping">🚚 Frete grátis</div>';
+      }
+      if (!prod.installments && !prod.freeShipping) {
+        detalhes += '<div class="product-click-hint">👆 Clique e veja frete e parcelamento</div>';
+      }
+
+      card.innerHTML = `
+        <img src="${prod.image}" alt="${prod.title}" loading="lazy" 
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23f0f0f0\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'30%25\' y=\'50%25\' fill=\'%23999\'%3ESem imagem%3C/text%3E%3C/svg%3E'">
+        <div class="product-info">
+          <div class="product-name">${prod.title}</div>
+          <div class="product-price">${prod.price}</div>
+          ${detalhes}
+        </div>
+      `;
+      return card;
+    }
+
+    function renderizarLista(produtos, containerId) {
+      const grid = document.getElementById(containerId);
+      grid.innerHTML = '';
+      if (produtos.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;">Nenhum produto exclusivo encontrado.</p>';
+        return;
+      }
+      produtos.forEach(prod => grid.appendChild(criarCard(prod)));
+    }
+
+    // ============================================================
+    // VERIFICAÇÃO DO NOME
+    // ============================================================
+    function checkClientName() {
+      const input = document.getElementById('clientName');
+      const rawName = input.value.trim();
+      const errorEl = document.getElementById('errorMsg');
+      if (!rawName) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Digite um nome.';
+        document.getElementById('secret-products').style.display = 'none';
+        return;
+      }
+
+      const normalized = rawName.toLowerCase().replace(/\s+/g, ' ');
+      const idsAutorizados = secretLists[normalized];
+
+      if (idsAutorizados && idsAutorizados.length > 0) {
+        errorEl.style.display = 'none';
+        const produtosSecretos = PUBLIC_PRODUCTS.filter(p => idsAutorizados.includes(p.id));
+        renderizarLista(produtosSecretos, 'secret-products-grid');
+        document.getElementById('secret-products').style.display = 'block';
+      } else {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Nome não encontrado ou sem produtos exclusivos.';
+        document.getElementById('secret-products').style.display = 'none';
+      }
+    }
+
+    // Enter no campo de nome
+    document.getElementById('clientName').addEventListener('keypress', e => {
+      if (e.key === 'Enter') checkClientName();
+    });
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      buildSecretLists();
+      renderizarLista(PUBLIC_PRODUCTS, 'public-products');
+    });
+  </script>
+</body>
+</html>
