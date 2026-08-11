@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 Super Planilha Financeira + Dízimo + Investimentos</title>
+    <title>💰 Finanças Cloud</title>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
@@ -130,7 +131,7 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* ===== SUBNAV (ENTRADAS/SAÍDAS/AVULSOS) ===== */
+        /* ===== SUBNAV ===== */
         .subnav {
             display: flex;
             gap: 4px;
@@ -394,7 +395,6 @@
             font-size: 14px;
         }
 
-        /* ===== TOTAL AVULSOS ===== */
         .total-avulsos {
             background: #fff3e0;
             border-left: 4px solid #ff9800;
@@ -630,9 +630,8 @@
 <body>
     <div class="app-container" id="app">
 
-        <!-- ===== HEADER ===== -->
         <header class="header">
-            <h1>💰 Finanças <span>+ Dízimo + Invest</span></h1>
+            <h1>💰 Finanças <span>Cloud</span></h1>
             <div class="saldo-resumo" id="resumoHeader">
                 <div class="item"><span class="label">Receitas</span><span class="valor receita" id="headerReceitas">R$ 0</span></div>
                 <div class="item"><span class="label">Despesas</span><span class="valor despesa" id="headerDespesas">R$ 0</span></div>
@@ -640,7 +639,6 @@
             </div>
         </header>
 
-        <!-- ===== NAV PRINCIPAL ===== -->
         <nav class="nav-tabs" id="navTabs">
             <button class="active" data-tab="dashboard">📊 Dashboard</button>
             <button data-tab="lancamentos">📋 Lançamentos <span class="badge" id="countLancamentos">0</span></button>
@@ -650,7 +648,7 @@
             <button data-tab="investimentos">📈 Investimentos</button>
         </nav>
 
-        <!-- ===== DASHBOARD ===== -->
+        <!-- Dashboard -->
         <section class="tab-content active" id="tabDashboard">
             <div class="cards-grid" id="cardsResumo">
                 <div class="card-stat"><div class="title">Saldo Total</div><div class="value neutral" id="dashSaldo">R$ 0</div></div>
@@ -660,11 +658,9 @@
                 <div class="card-stat" style="border-left:4px solid #9c27b0;"><div class="title">Dízimo Devido (10%)</div><div class="value dizimo" id="dashDizimo">R$ 0</div></div>
                 <div class="card-stat" style="border-left:4px solid #00695c;"><div class="title">Patrimônio Investido</div><div class="value invest" id="dashInvest">R$ 0</div></div>
             </div>
-            <!-- Mês de referência -->
             <div style="text-align:center; margin-bottom:20px;">
                 <span class="mes-referencia" id="mesReferencia">📅 Mês de referência: --</span>
             </div>
-
             <div class="chart-row">
                 <div class="chart-box"><h3>📈 Evolução Mensal</h3><canvas id="chartEvolucao"></canvas></div>
                 <div class="chart-box"><h3>🧩 Gastos por Categoria</h3><canvas id="chartCategorias"></canvas></div>
@@ -672,7 +668,7 @@
             </div>
         </section>
 
-        <!-- ===== LANÇAMENTOS ===== -->
+        <!-- Lançamentos -->
         <section class="tab-content" id="tabLancamentos">
             <div class="toolbar">
                 <div class="left">
@@ -694,7 +690,6 @@
                 <button data-subtab="avulsos">💸 Avulsos (Pix/Dinheiro)</button>
             </div>
 
-            <!-- Filtro por categoria -->
             <div class="filtros" style="margin-bottom:12px;">
                 <span class="text-muted">Filtrar por categoria:</span>
                 <select id="filtroCategoria">
@@ -707,7 +702,6 @@
                 <button class="btn btn-sm" id="btnLimparFiltroCategoria">Limpar filtro</button>
             </div>
 
-            <!-- Total de Avulsos (visível apenas na sub-aba avulsos) -->
             <div id="totalAvulsosContainer" style="display:none;" class="total-avulsos">
                 💰 Total de gastos avulsos (Pix/Dinheiro): <span id="totalAvulsosValor">R$ 0,00</span>
             </div>
@@ -715,10 +709,8 @@
             <div class="tabela-wrapper">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th>
-                            <th>Pagamento</th><th>Parcela</th><th style="width:100px;">Ações</th>
-                        </tr>
+                        <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th>
+                            <th>Pagamento</th><th>Parcela</th><th style="width:100px;">Ações</th></tr>
                     </thead>
                     <tbody id="tabelaLancamentos">
                         <tr><td colspan="8" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>
@@ -727,31 +719,27 @@
             </div>
         </section>
 
-        <!-- ===== CARTÕES ===== -->
+        <!-- Cartões -->
         <section class="tab-content" id="tabCartoes">
             <div class="toolbar">
                 <button class="btn btn-primary" id="btnAddCartao">➕ Adicionar Cartão</button>
             </div>
-            <div class="cartoes-grid" id="listaCartoes">
-                <!-- renderizado via JS -->
-            </div>
-            <div class="text-muted" style="margin-top:8px;">* Os gastos são descontados do limite de cada cartão automaticamente.</div>
+            <div class="cartoes-grid" id="listaCartoes"></div>
+            <div class="text-muted">* Os gastos são descontados do limite automaticamente.</div>
         </section>
 
-        <!-- ===== PARCELAS ===== -->
+        <!-- Parcelas -->
         <section class="tab-content" id="tabParcelas">
             <h3 style="margin-bottom:12px;">📅 Parcelas Futuras (próximos 6 meses)</h3>
             <div class="tabela-wrapper">
                 <table>
                     <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Cartão</th><th>Parcela</th></tr></thead>
-                    <tbody id="tabelaParcelas">
-                        <tr><td colspan="5" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhuma parcela futura.</td></tr>
-                    </tbody>
+                    <tbody id="tabelaParcelas"><tr><td colspan="5" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhuma parcela futura.</td></tr></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- ===== DÍZIMO ===== -->
+        <!-- Dízimo -->
         <section class="tab-content" id="tabDizimo">
             <h3 style="margin-bottom:12px;">✝️ Controle de Dízimo (10% das receitas)</h3>
             <div class="dizimo-grid" id="dizimoResumo">
@@ -770,15 +758,13 @@
                 <div class="tabela-wrapper">
                     <table>
                         <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th></tr></thead>
-                        <tbody id="tabelaDizimo">
-                            <tr><td colspan="4" style="text-align:center;padding:20px;color:#7a8a9e;">Nenhum pagamento registrado.</td></tr>
-                        </tbody>
+                        <tbody id="tabelaDizimo"><tr><td colspan="4" style="text-align:center;padding:20px;color:#7a8a9e;">Nenhum pagamento registrado.</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- ===== INVESTIMENTOS ===== -->
+        <!-- Investimentos -->
         <section class="tab-content" id="tabInvestimentos">
             <h3 style="margin-bottom:12px;">📈 Controle de Investimentos</h3>
             <div class="invest-resumo" id="investResumo">
@@ -788,7 +774,6 @@
                 <div class="invest-card"><div class="title">Patrimônio Atual</div><div class="value teal" id="invPatrimonio">R$ 0</div></div>
                 <div class="invest-card" style="border-left:4px solid #f4b400;"><div class="title">Sugestão 5% das Receitas do Mês</div><div class="value" style="color:#f4b400;" id="invSugestao">R$ 0</div></div>
             </div>
-
             <div class="invest-actions">
                 <button class="btn btn-primary" id="btnAddInvestimento">➕ Novo Aporte</button>
                 <button class="btn btn-danger" id="btnResgatarInvestimento">💸 Resgatar</button>
@@ -799,30 +784,27 @@
                     <span class="text-muted">%</span>
                 </div>
             </div>
-
             <div class="chart-box" style="margin-bottom:20px;">
                 <h3>📈 Evolução do Patrimônio</h3>
                 <canvas id="chartInvestimentos" style="max-height:200px;"></canvas>
             </div>
-
             <h4>📋 Movimentações</h4>
             <div class="tabela-wrapper">
                 <table>
                     <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Ações</th></tr></thead>
-                    <tbody id="tabelaInvestimentos">
-                        <tr><td colspan="6" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhuma movimentação.</td></tr>
-                    </tbody>
+                    <tbody id="tabelaInvestimentos"><tr><td colspan="6" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhuma movimentação.</td></tr></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- ===== MODAL LANÇAMENTO ===== -->
+        <!-- MODAIS -->
+        <!-- Modal Lançamento -->
         <div class="modal-overlay" id="modalLancamento">
             <div class="modal">
                 <h2 id="modalLancamentoTitle">Novo Lançamento</h2>
                 <form id="formLancamento" autocomplete="off">
                     <div class="form-group"><label>Data</label><input type="date" id="fData" required></div>
-                    <div class="form-group"><label>Descrição (nome)</label><input type="text" id="fDescricao" required></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" id="fDescricao" required></div>
                     <div class="form-group"><label>Categoria</label>
                         <select id="fCategoria">
                             <option>Alimentação</option><option>Transporte</option><option>Moradia</option>
@@ -833,7 +815,7 @@
                     </div>
                     <div class="row2">
                         <div class="form-group"><label>Tipo</label>
-                            <select id="fTipo"><option value="receita">Receita (entrada)</option><option value="despesa">Despesa (saída)</option></select>
+                            <select id="fTipo"><option value="receita">Receita</option><option value="despesa">Despesa</option></select>
                         </div>
                         <div class="form-group"><label>Valor (R$)</label><input type="number" id="fValor" step="0.01" min="0" required></div>
                     </div>
@@ -845,7 +827,7 @@
                                 <option value="cartao">Cartão</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Cartão (se cartão)</label>
+                        <div class="form-group"><label>Cartão</label>
                             <select id="fCartao"><option value="">-- Nenhum --</option></select>
                         </div>
                     </div>
@@ -866,18 +848,18 @@
             </div>
         </div>
 
-        <!-- ===== MODAL CARTÃO ===== -->
+        <!-- Modal Cartão -->
         <div class="modal-overlay" id="modalCartao">
             <div class="modal">
                 <h2 id="modalCartaoTitle">Novo Cartão</h2>
                 <form id="formCartao">
-                    <div class="form-group"><label>Nome do Cartão</label><input type="text" id="cNome" required></div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="cNome" required></div>
                     <div class="row2">
                         <div class="form-group"><label>Dia Fechamento</label><input type="number" id="cFechamento" min="1" max="31" required></div>
                         <div class="form-group"><label>Dia Vencimento</label><input type="number" id="cVencimento" min="1" max="31" required></div>
                     </div>
                     <div class="form-group"><label>Limite (R$)</label><input type="number" id="cLimite" step="0.01" min="0" required></div>
-                    <div class="form-group"><label>Cor (opcional)</label><input type="color" id="cCor" value="#2a6df4"></div>
+                    <div class="form-group"><label>Cor</label><input type="color" id="cCor" value="#2a6df4"></div>
                     <input type="hidden" id="cEditId" value="">
                     <div class="actions">
                         <button type="button" class="btn" id="btnCancelarCartao">Cancelar</button>
@@ -887,12 +869,12 @@
             </div>
         </div>
 
-        <!-- ===== MODAL DÍZIMO PERSONALIZADO ===== -->
+        <!-- Modal Dízimo Personalizado -->
         <div class="modal-overlay" id="modalDizimoPersonalizado">
             <div class="modal">
                 <h2>💸 Pagar Dízimo - Valor Personalizado</h2>
                 <form id="formDizimoPersonalizado">
-                    <div class="form-group"><label>Valor a pagar (R$)</label><input type="number" id="dizimoValorPersonalizado" step="0.01" min="0" required></div>
+                    <div class="form-group"><label>Valor (R$)</label><input type="number" id="dizimoValorPersonalizado" step="0.01" min="0" required></div>
                     <div class="form-group"><label>Forma de Pagamento</label>
                         <select id="dizimoFormaPagamento">
                             <option value="dinheiro">Dinheiro</option>
@@ -900,18 +882,18 @@
                             <option value="cartao">Cartão</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Cartão (se cartão)</label>
+                    <div class="form-group"><label>Cartão</label>
                         <select id="dizimoCartao"><option value="">-- Nenhum --</option></select>
                     </div>
                     <div class="actions">
                         <button type="button" class="btn" id="btnCancelarDizimoPersonalizado">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Registrar Pagamento</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- ===== MODAL INVESTIMENTO ===== -->
+        <!-- Modal Investimento -->
         <div class="modal-overlay" id="modalInvestimento">
             <div class="modal">
                 <h2 id="modalInvestTitle">Novo Aporte</h2>
@@ -946,9 +928,28 @@
 
     </div>
 
-    <script>
+    <script type="module">
         // ============================================================
-        //  MODELO DE DADOS
+        //  IMPORTAÇÕES FIREBASE (modular)
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC0bOFtVGeEMThmeIH2pkHuxk5IoqjMTE",
+            authDomain: "financas-63247.firebaseapp.com",
+            projectId: "financas-63247",
+            storageBucket: "financas-63247.firebasestorage.app",
+            messagingSenderId: "681861198387",
+            appId: "1:681861198387:web:181a7cb826e85bf443e946",
+            measurementId: "G-YZ6Y3LHPP2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============================================================
+        //  MODELO DE DADOS (arrays locais)
         // ============================================================
         let lancamentos = [];
         let cartoes = [];
@@ -957,105 +958,62 @@
         let nextIdCartao = 1;
         let nextIdInvest = 1;
 
-        function carregarDados() {
-            try {
-                const data = JSON.parse(localStorage.getItem('financas_data'));
-                if (data) {
-                    lancamentos = data.lancamentos || [];
-                    cartoes = data.cartoes || [];
-                    investimentos = data.investimentos || [];
-                    nextIdLancamento = data.nextIdLancamento || 1;
-                    nextIdCartao = data.nextIdCartao || 1;
-                    nextIdInvest = data.nextIdInvest || 1;
-                }
-            } catch (e) { console.warn('Erro ao carregar dados', e); }
-        }
-
-        function salvarDados() {
-            localStorage.setItem('financas_data', JSON.stringify({
-                lancamentos,
-                cartoes,
-                investimentos,
-                nextIdLancamento,
-                nextIdCartao,
-                nextIdInvest
-            }));
-        }
-
         // ============================================================
         //  HELPERS
         // ============================================================
         function formatarMoeda(valor) {
             return 'R$ ' + valor.toFixed(2).replace('.', ',');
         }
-
-        function hoje() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function mesAno(dataStr) {
+        const hoje = () => new Date().toISOString().split('T')[0];
+        const mesAno = (dataStr) => {
             const d = new Date(dataStr + 'T00:00:00');
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        }
-
-        function nomeMes(mesAnoStr) {
+        };
+        const nomeMes = (mesAnoStr) => {
             const [ano, mes] = mesAnoStr.split('-').map(Number);
             const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             return meses[mes - 1] + '/' + ano;
-        }
-
-        function obterCartao(id) { return cartoes.find(c => c.id === id); }
-
-        function getFormaPagamentoLabel(forma) {
+        };
+        const obterCartao = (id) => cartoes.find(c => c.id === id);
+        const getFormaPagamentoLabel = (forma) => {
             const mapa = { dinheiro: 'Dinheiro', pix: 'Pix', cartao: 'Cartão' };
             return mapa[forma] || forma;
-        }
-
-        function getMesAtual() {
+        };
+        const getMesAtual = () => {
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        }
+        };
 
         // ============================================================
-        //  GERADOR DE PARCELAS
+        //  FUNÇÕES DE NEGÓCIO
         // ============================================================
-        function gerarParcelas(lancamento) {
-            const { data, descricao, categoria, tipo, valor, formaPagamento, cartaoId, qtdParcelas } = lancamento;
-            if (formaPagamento !== 'cartao' || qtdParcelas <= 1) return [lancamento];
-
+        function gerarParcelas(lanc) {
+            if (lanc.formaPagamento !== 'cartao' || lanc.qtdParcelas <= 1) return [lanc];
             const parcelas = [];
-            const valorParcela = valor / qtdParcelas;
-            for (let i = 1; i <= qtdParcelas; i++) {
-                const dataParcela = new Date(data + 'T00:00:00');
+            const valorParcela = lanc.valor / lanc.qtdParcelas;
+            for (let i = 1; i <= lanc.qtdParcelas; i++) {
+                const dataParcela = new Date(lanc.data + 'T00:00:00');
                 dataParcela.setMonth(dataParcela.getMonth() + (i - 1));
                 const dataStr = dataParcela.toISOString().split('T')[0];
-                const parc = {
+                parcelas.push({
                     id: nextIdLancamento++,
                     data: dataStr,
-                    descricao: `${descricao} (${i}/${qtdParcelas})`,
-                    categoria,
-                    tipo,
+                    descricao: `${lanc.descricao} (${i}/${lanc.qtdParcelas})`,
+                    categoria: lanc.categoria,
+                    tipo: lanc.tipo,
                     valor: Math.round(valorParcela * 100) / 100,
-                    formaPagamento,
-                    cartaoId: cartaoId ? Number(cartaoId) : null,
+                    formaPagamento: lanc.formaPagamento,
+                    cartaoId: lanc.cartaoId ? Number(lanc.cartaoId) : null,
                     qtdParcelas: 1,
                     parcelaAtual: i,
                     mesCompetencia: mesAno(dataStr),
-                    parcelaOriginalId: lancamento.id || null,
-                };
-                parcelas.push(parc);
+                    parcelaOriginalId: lanc.id || null,
+                });
             }
             return parcelas;
         }
 
-        // ============================================================
-        //  CRUD LANÇAMENTOS
-        // ============================================================
         function adicionarLancamento(lanc) {
-            // Garantir que cartaoId seja número ou null
-            if (lanc.cartaoId) lanc.cartaoId = Number(lanc.cartaoId);
-            else lanc.cartaoId = null;
-
             if (lanc.formaPagamento === 'cartao' && lanc.qtdParcelas > 1) {
                 const novas = gerarParcelas(lanc);
                 lancamentos.push(...novas);
@@ -1063,10 +1021,10 @@
                 lanc.qtdParcelas = 1;
                 lanc.parcelaAtual = 1;
                 lanc.mesCompetencia = mesAno(lanc.data);
+                if (lanc.cartaoId) lanc.cartaoId = Number(lanc.cartaoId);
                 lancamentos.push(lanc);
             }
-            salvarDados();
-            renderizarTudo();
+            salvarNoFirebase();
         }
 
         function editarLancamento(id, novosDados) {
@@ -1081,9 +1039,7 @@
                 lancamentos = lancamentos.filter(l => {
                     if (l.id === id) return false;
                     if (l.descricao.startsWith(base) && l.formaPagamento === 'cartao' && l.cartaoId === antigo
-                        .cartaoId) {
-                        return false;
-                    }
+                        .cartaoId) return false;
                     return true;
                 });
             }
@@ -1101,41 +1057,40 @@
                 lancamentos = lancamentos.filter(l => {
                     if (l.id === id) return false;
                     if (l.descricao.startsWith(base) && l.formaPagamento === 'cartao' && l.cartaoId === lanc
-                        .cartaoId) {
-                        return false;
-                    }
+                        .cartaoId) return false;
                     return true;
                 });
             } else {
                 lancamentos = lancamentos.filter(l => l.id !== id);
             }
-            salvarDados();
-            renderizarTudo();
+            salvarNoFirebase();
         }
 
-        // ============================================================
-        //  CÁLCULOS DE DÍZIMO
-        // ============================================================
+        function adicionarInvestimento(inv) {
+            inv.id = nextIdInvest++;
+            investimentos.push(inv);
+            salvarNoFirebase();
+        }
+
+        function excluirInvestimento(id) {
+            investimentos = investimentos.filter(i => i.id !== id);
+            salvarNoFirebase();
+        }
+
         function calcularDizimo(mes) {
             const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
             const devido = receitasMes * 0.10;
-            const pago = lancamentos.filter(l =>
-                    l.tipo === 'despesa' &&
-                    l.categoria === 'Dízimo' &&
-                    l.mesCompetencia === mes
-                )
+            const pago = lancamentos.filter(l => l.tipo === 'despesa' && l.categoria === 'Dízimo' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
-            const saldo = devido - pago;
-            return { receitasMes, devido, pago, saldo };
+            return { receitasMes, devido, pago, saldo: devido - pago };
         }
 
         function registrarPagamentoDizimo(valor, formaPagamento, cartaoId = null) {
             const mesAtual = getMesAtual();
-            const dataAtual = hoje();
             const novo = {
                 id: nextIdLancamento++,
-                data: dataAtual,
+                data: hoje(),
                 descricao: `Pagamento de Dízimo - ${mesAtual}`,
                 categoria: 'Dízimo',
                 tipo: 'despesa',
@@ -1149,9 +1104,6 @@
             adicionarLancamento(novo);
         }
 
-        // ============================================================
-        //  CÁLCULOS DE INVESTIMENTOS
-        // ============================================================
         function calcularInvestimentos() {
             const aportes = investimentos.filter(i => i.tipo === 'aporte').reduce((s, i) => s + i.valor, 0);
             const resgates = investimentos.filter(i => i.tipo === 'resgate').reduce((s, i) => s + i.valor, 0);
@@ -1173,55 +1125,131 @@
                     if (i.tipo === 'rendimento') return acc + i.valor;
                     return acc;
                 }, 0);
-
             const rendimento = saldoInicioMes * (taxaPercentual / 100);
             if (rendimento <= 0) {
-                alert('Saldo no início do mês é zero ou negativo. Não há rendimento a aplicar.');
+                alert('Saldo no início do mês é zero ou negativo. Não há rendimento.');
                 return;
             }
-            const hojeStr = hoje();
-            const novoRendimento = {
+            const novo = {
                 id: nextIdInvest++,
-                data: hojeStr,
+                data: hoje(),
                 descricao: `Rendimento mensal (${taxaPercentual}%) - ${nomeMes(mesAtual)}`,
                 tipo: 'rendimento',
                 valor: Math.round(rendimento * 100) / 100,
                 categoria: 'Rendimento'
             };
-            investimentos.push(novoRendimento);
-            salvarDados();
-            renderizarTudo();
-            alert(`Rendimento de ${formatarMoeda(rendimento)} aplicado com sucesso!`);
+            investimentos.push(novo);
+            salvarNoFirebase();
+            alert(`Rendimento de ${formatarMoeda(rendimento)} aplicado!`);
         }
 
         // ============================================================
-        //  CRUD INVESTIMENTOS (CORRIGIDO)
+        //  SALVAR E CARREGAR DO FIREBASE (modular)
         // ============================================================
-        function adicionarInvestimento(inv) {
-            inv.id = nextIdInvest++;
-            investimentos.push(inv);
-            salvarDados();
-            renderizarTudo();
+        async function salvarNoFirebase() {
+            const data = {
+                lancamentos,
+                cartoes,
+                investimentos,
+                nextIdLancamento,
+                nextIdCartao,
+                nextIdInvest
+            };
+            try {
+                const docRef = doc(db, 'dados', 'principal');
+                await setDoc(docRef, data);
+                console.log('Dados salvos no Firebase');
+            } catch (err) {
+                console.error('Erro ao salvar:', err);
+            }
         }
 
-        function editarInvestimento(id, novosDados) {
-            const index = investimentos.findIndex(i => i.id === id);
-            if (index === -1) return;
-            investimentos[index] = { ...investimentos[index], ...novosDados };
-            salvarDados();
-            renderizarTudo();
+        async function carregarDoFirebase() {
+            try {
+                const docRef = doc(db, 'dados', 'principal');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    lancamentos = data.lancamentos || [];
+                    cartoes = data.cartoes || [];
+                    investimentos = data.investimentos || [];
+                    nextIdLancamento = data.nextIdLancamento || 1;
+                    nextIdCartao = data.nextIdCartao || 1;
+                    nextIdInvest = data.nextIdInvest || 1;
+                    renderizarTudo();
+                    console.log('Dados carregados do Firebase');
+                } else {
+                    // Inicializar com dados exemplo
+                    criarDadosExemplo();
+                    // Salvar imediatamente
+                    await salvarNoFirebase();
+                    renderizarTudo();
+                }
+            } catch (err) {
+                console.error('Erro ao carregar do Firebase:', err);
+                // Fallback para localStorage
+                carregarDoLocalStorage();
+            }
         }
 
-        function excluirInvestimento(id) {
-            if (!confirm('Excluir esta movimentação?')) return;
-            investimentos = investimentos.filter(i => i.id !== id);
-            salvarDados();
-            renderizarTudo();
+        // Fallback localStorage (para desenvolvimento)
+        function carregarDoLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('financas_data'));
+                if (data) {
+                    lancamentos = data.lancamentos || [];
+                    cartoes = data.cartoes || [];
+                    investimentos = data.investimentos || [];
+                    nextIdLancamento = data.nextIdLancamento || 1;
+                    nextIdCartao = data.nextIdCartao || 1;
+                    nextIdInvest = data.nextIdInvest || 1;
+                    renderizarTudo();
+                } else {
+                    criarDadosExemplo();
+                }
+            } catch (e) { criarDadosExemplo(); }
+        }
+
+        function criarDadosExemplo() {
+            const hojeStr = hoje();
+            const mes = mesAno(hojeStr);
+            // Cartões
+            cartoes = [
+                { id: nextIdCartao++, nome: 'Visa Gold', diaFechamento: 15, diaVencimento: 5, limite: 10000,
+                    cor: '#2a6df4' },
+                { id: nextIdCartao++, nome: 'Mastercard Black', diaFechamento: 28, diaVencimento: 10, limite: 8000,
+                    cor: '#f4b400' }
+            ];
+            // Lançamentos
+            const ex1 = { id: nextIdLancamento++, data: hojeStr, descricao: 'Salário', categoria: 'Outros',
+                tipo: 'receita', valor: 4500, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
+                parcelaAtual: 1, mesCompetencia: mes };
+            const ex2 = { id: nextIdLancamento++, data: hojeStr, descricao: 'Supermercado', categoria: 'Alimentação',
+                tipo: 'despesa', valor: 350.75, formaPagamento: 'cartao', cartaoId: 1, qtdParcelas: 1,
+                parcelaAtual: 1, mesCompetencia: mes };
+            const ex3 = { id: nextIdLancamento++, data: hojeStr, descricao: 'Smartphone', categoria: 'Eletrônicos',
+                tipo: 'despesa', valor: 3000, formaPagamento: 'cartao', cartaoId: 2, qtdParcelas: 6,
+                parcelaAtual: 1, mesCompetencia: mes };
+            const ex4 = { id: nextIdLancamento++, data: hojeStr, descricao: 'Café da manhã', categoria: 'Alimentação',
+                tipo: 'despesa', valor: 25.5, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
+                parcelaAtual: 1, mesCompetencia: mes };
+            lancamentos = [];
+            // Usar adicionarLancamento para garantir consistência e geração de parcelas
+            adicionarLancamento(ex1);
+            adicionarLancamento(ex2);
+            adicionarLancamento(ex3);
+            adicionarLancamento(ex4);
+            // Investimentos
+            investimentos = [{ id: nextIdInvest++, data: hojeStr, descricao: 'Aporte inicial', tipo: 'aporte',
+                valor: 500, categoria: 'CDB' }];
         }
 
         // ============================================================
         //  RENDERIZAÇÃO
         // ============================================================
+        let subtabAtual = 'todos';
+        let chartEvolucao, chartCategorias, chartCartoes, chartInvest;
+
         function renderizarTudo() {
             renderizarResumoHeader();
             renderizarDashboard();
@@ -1240,10 +1268,9 @@
         function renderizarResumoHeader() {
             const totalReceitas = lancamentos.filter(l => l.tipo === 'receita').reduce((s, l) => s + l.valor, 0);
             const totalDespesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((s, l) => s + l.valor, 0);
-            const saldo = totalReceitas - totalDespesas;
             document.getElementById('headerReceitas').textContent = formatarMoeda(totalReceitas);
             document.getElementById('headerDespesas').textContent = formatarMoeda(totalDespesas);
-            document.getElementById('headerSaldo').textContent = formatarMoeda(saldo);
+            document.getElementById('headerSaldo').textContent = formatarMoeda(totalReceitas - totalDespesas);
         }
 
         function renderizarDashboard() {
@@ -1258,28 +1285,19 @@
             document.getElementById('dashReceitas').textContent = formatarMoeda(receitasMes);
             document.getElementById('dashDespesas').textContent = formatarMoeda(despesasMes);
             document.getElementById('dashEconomia').textContent = formatarMoeda(receitasMes - despesasMes);
-
             const { devido } = calcularDizimo(mesAtual);
             document.getElementById('dashDizimo').textContent = formatarMoeda(devido);
-
             const { patrimonio } = calcularInvestimentos();
             document.getElementById('dashInvest').textContent = formatarMoeda(patrimonio);
-
             renderizarGraficos();
         }
 
         function atualizarMesReferencia() {
-            const mesAtual = getMesAtual();
-            document.getElementById('mesReferencia').textContent = `📅 Mês de referência: ${nomeMes(mesAtual)}`;
+            document.getElementById('mesReferencia').textContent = `📅 Mês de referência: ${nomeMes(getMesAtual())}`;
         }
 
-        let chartEvolucao = null,
-            chartCategorias = null,
-            chartCartoes = null,
-            chartInvest = null;
-
         function renderizarGraficos() {
-            // Gráfico de evolução mensal (receitas/despesas)
+            // Evolução mensal
             const meses = [];
             const receitas = [];
             const despesas = [];
@@ -1295,7 +1313,6 @@
                 receitas.push(rec);
                 despesas.push(des);
             }
-
             const ctxEvol = document.getElementById('chartEvolucao').getContext('2d');
             if (chartEvolucao) chartEvolucao.destroy();
             chartEvolucao = new Chart(ctxEvol, {
@@ -1307,12 +1324,7 @@
                         { label: 'Despesas', data: despesas, backgroundColor: '#d93025', borderRadius: 4 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: { legend: { display: true, position: 'top' } },
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
             });
 
             // Gastos por categoria
@@ -1335,7 +1347,7 @@
                 options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
             });
 
-            // Gastos por cartão (gráfico do dashboard)
+            // Gastos por cartão
             const cartaoMap = {};
             lancamentos.filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId)
                 .forEach(l => {
@@ -1358,7 +1370,7 @@
                 options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
             });
 
-            // Gráfico de investimentos
+            // Investimentos
             renderizarGraficoInvestimentos();
         }
 
@@ -1381,10 +1393,7 @@
                     }, 0);
                 valores.push(saldo);
             }
-
-            const ctxInv = document.getElementById('chartInvestimentos');
-            if (!ctxInv) return;
-            const ctx = ctxInv.getContext('2d');
+            const ctx = document.getElementById('chartInvestimentos').getContext('2d');
             if (chartInvest) chartInvest.destroy();
             chartInvest = new Chart(ctx, {
                 type: 'line',
@@ -1399,63 +1408,45 @@
                         tension: 0.2
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: { legend: { display: true, position: 'top' } },
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
             });
         }
 
-        // ===== RENDERIZAR TABELA DE LANÇAMENTOS COM SUBNAV E FILTRO CATEGORIA =====
-        let subtabAtual = 'todos';
-
+        // ===== TABELA LANÇAMENTOS =====
         function renderizarTabelaLancamentos() {
             const tbody = document.getElementById('tabelaLancamentos');
             const filtroMes = document.getElementById('filtroMes').value;
             const filtroCategoria = document.getElementById('filtroCategoria').value;
             let lista = [...lancamentos];
-
-            if (filtroMes) {
-                lista = lista.filter(l => l.mesCompetencia === filtroMes);
-            }
-
-            if (subtabAtual === 'entradas') {
-                lista = lista.filter(l => l.tipo === 'receita');
-            } else if (subtabAtual === 'saidas') {
-                lista = lista.filter(l => l.tipo === 'despesa');
-            } else if (subtabAtual === 'avulsos') {
+            if (filtroMes) lista = lista.filter(l => l.mesCompetencia === filtroMes);
+            if (subtabAtual === 'entradas') lista = lista.filter(l => l.tipo === 'receita');
+            else if (subtabAtual === 'saidas') lista = lista.filter(l => l.tipo === 'despesa');
+            else if (subtabAtual === 'avulsos') {
                 lista = lista.filter(l => l.tipo === 'despesa' && (l.formaPagamento === 'dinheiro' || l.formaPagamento ===
                     'pix'));
             }
-
-            if (filtroCategoria) {
-                lista = lista.filter(l => l.categoria === filtroCategoria);
-            }
-
+            if (filtroCategoria) lista = lista.filter(l => l.categoria === filtroCategoria);
             lista.sort((a, b) => b.data.localeCompare(a.data));
 
-            const totalAvulsosContainer = document.getElementById('totalAvulsosContainer');
+            const container = document.getElementById('totalAvulsosContainer');
             if (subtabAtual === 'avulsos') {
-                totalAvulsosContainer.style.display = 'block';
+                container.style.display = 'block';
                 const avulsosFiltrados = lancamentos.filter(l =>
                     l.tipo === 'despesa' &&
                     (l.formaPagamento === 'dinheiro' || l.formaPagamento === 'pix') &&
                     (filtroMes ? l.mesCompetencia === filtroMes : true)
                 );
-                const totalAvulsos = avulsosFiltrados.reduce((s, l) => s + l.valor, 0);
-                document.getElementById('totalAvulsosValor').textContent = formatarMoeda(totalAvulsos);
+                const total = avulsosFiltrados.reduce((s, l) => s + l.valor, 0);
+                document.getElementById('totalAvulsosValor').textContent = formatarMoeda(total);
             } else {
-                totalAvulsosContainer.style.display = 'none';
+                container.style.display = 'none';
             }
 
             if (!lista.length) {
                 tbody.innerHTML =
-                    `<tr><td colspan="8" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento para este período.</td></tr>`;
+                    `<tr><td colspan="8" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>`;
                 return;
             }
-
             let html = '';
             lista.forEach(l => {
                 const cartao = l.cartaoId ? obterCartao(l.cartaoId) : null;
@@ -1471,34 +1462,15 @@
                     <td>${getFormaPagamentoLabel(l.formaPagamento)} ${nomeCartao ? '<span class="cartao-badge">'+nomeCartao+'</span>' : ''}</td>
                     <td>${parcelaInfo}</td>
                     <td class="acoes">
-                        <button class="btn btn-sm btn-primary" onclick="editarLancamentoUI(${l.id})">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="excluirLancamento(${l.id})">🗑️</button>
+                        <button class="btn btn-sm btn-primary" onclick="window.editarLancamentoUI(${l.id})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="window.excluirLancamento(${l.id})">🗑️</button>
                     </td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
 
-        // ===== SUBNAV =====
-        document.querySelectorAll('#subnavLancamentos button').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#subnavLancamentos button').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                subtabAtual = this.dataset.subtab;
-                renderizarTabelaLancamentos();
-            });
-        });
-
-        // ===== FILTRO CATEGORIA =====
-        document.getElementById('filtroCategoria').addEventListener('change', function() {
-            renderizarTabelaLancamentos();
-        });
-        document.getElementById('btnLimparFiltroCategoria').addEventListener('click', function() {
-            document.getElementById('filtroCategoria').value = '';
-            renderizarTabelaLancamentos();
-        });
-
-        // ===== CARTÕES (CORRIGIDO) =====
+        // ===== CARTÕES =====
         function renderizarCartoes() {
             const grid = document.getElementById('listaCartoes');
             if (!cartoes.length) {
@@ -1507,23 +1479,20 @@
             }
             let html = '';
             cartoes.forEach(c => {
-                // Garantir comparação com Number
                 const gastos = lancamentos
-                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && Number(l.cartaoId) === c.id)
+                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId === c.id)
                     .reduce((s, l) => s + l.valor, 0);
                 const saldoDisponivel = c.limite - gastos;
-                const saldoClasse = saldoDisponivel >= 0 ? '#0f9d58' : '#d93025';
+                const cor = saldoDisponivel >= 0 ? '#0f9d58' : '#d93025';
                 html += `<div class="cartao-card" style="border-left:6px solid ${c.cor || '#2a6df4'};">
                     <div class="nome">${c.nome}</div>
                     <div class="dias">Fechamento: ${c.diaFechamento} | Vencimento: ${c.diaVencimento}</div>
                     <div class="limite">Limite: ${formatarMoeda(c.limite)}</div>
                     <div>Gastos: ${formatarMoeda(gastos)}</div>
-                    <div style="font-weight:600; color: ${saldoClasse};">
-                        Saldo disponível: ${formatarMoeda(saldoDisponivel)}
-                    </div>
+                    <div style="font-weight:600; color:${cor};">Saldo disponível: ${formatarMoeda(saldoDisponivel)}</div>
                     <div style="margin-top:8px;">
-                        <button class="btn btn-sm" onclick="editarCartaoUI(${c.id})">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="excluirCartao(${c.id})">🗑️</button>
+                        <button class="btn btn-sm" onclick="window.editarCartaoUI(${c.id})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="window.excluirCartao(${c.id})">🗑️</button>
                     </div>
                 </div>`;
             });
@@ -1540,7 +1509,6 @@
                 return d >= hoje && d < dataLimite && (l.qtdParcelas > 1 || l.parcelaOriginalId);
             });
             futuras.sort((a, b) => a.data.localeCompare(b.data));
-
             if (!futuras.length) {
                 tbody.innerHTML =
                     `<tr><td colspan="5" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhuma parcela futura.</td></tr>`;
@@ -1552,13 +1520,7 @@
                 const nomeCartao = cartao ? cartao.nome : '—';
                 const parcelaInfo = l.parcelaOriginalId ? `${l.parcelaAtual}/?` : (l.qtdParcelas > 1 ?
                     `${l.parcelaAtual}/${l.qtdParcelas}` : '');
-                html += `<tr>
-                    <td>${l.data}</td>
-                    <td>${l.descricao}</td>
-                    <td>${formatarMoeda(l.valor)}</td>
-                    <td>${nomeCartao}</td>
-                    <td>${parcelaInfo}</td>
-                </tr>`;
+                html += `<tr><td>${l.data}</td><td>${l.descricao}</td><td>${formatarMoeda(l.valor)}</td><td>${nomeCartao}</td><td>${parcelaInfo}</td></tr>`;
             });
             tbody.innerHTML = html;
         }
@@ -1577,25 +1539,22 @@
                 const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
                 const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
                 const pagoMes = lancamentos.filter(l =>
-                        l.tipo === 'despesa' &&
-                        l.categoria === 'Dízimo' &&
-                        l.mesCompetencia === key
-                    )
+                        l.tipo === 'despesa' && l.categoria === 'Dízimo' && l.mesCompetencia === key)
                     .reduce((s, l) => s + l.valor, 0);
-                if (pagoMes > 0) {
-                    pagamentos.push({ mes: key, valor: pagoMes });
-                }
+                if (pagoMes > 0) pagamentos.push({ mes: key, valor: pagoMes });
             }
             const tbody = document.getElementById('tabelaDizimo');
             if (!pagamentos.length) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#7a8a9e;">Nenhum pagamento registrado.</td></tr>`;
+                tbody.innerHTML =
+                    `<tr><td colspan="4" style="text-align:center;padding:20px;color:#7a8a9e;">Nenhum pagamento.</td></tr>`;
             } else {
                 let html = '';
                 pagamentos.forEach(p => {
                     const lanc = lancamentos.find(l => l.categoria === 'Dízimo' && l.mesCompetencia === p.mes);
                     const dataExemplo = lanc ? lanc.data : '--';
                     const forma = lanc ? getFormaPagamentoLabel(lanc.formaPagamento) : '--';
-                    html += `<tr><td>${dataExemplo}</td><td>Dízimo ${nomeMes(p.mes)}</td><td>${formatarMoeda(p.valor)}</td><td>${forma}</td></tr>`;
+                    html +=
+                        `<tr><td>${dataExemplo}</td><td>Dízimo ${nomeMes(p.mes)}</td><td>${formatarMoeda(p.valor)}</td><td>${forma}</td></tr>`;
                 });
                 tbody.innerHTML = html;
             }
@@ -1607,12 +1566,10 @@
             document.getElementById('invTotalResgatado').textContent = formatarMoeda(resgates);
             document.getElementById('invRendimentos').textContent = formatarMoeda(rendimentos);
             document.getElementById('invPatrimonio').textContent = formatarMoeda(patrimonio);
-
             const mesAtual = getMesAtual();
             const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mesAtual)
                 .reduce((s, l) => s + l.valor, 0);
-            const sugestao = receitasMes * 0.05;
-            document.getElementById('invSugestao').textContent = formatarMoeda(sugestao);
+            document.getElementById('invSugestao').textContent = formatarMoeda(receitasMes * 0.05);
 
             const tbody = document.getElementById('tabelaInvestimentos');
             if (!investimentos.length) {
@@ -1633,7 +1590,7 @@
                     <td>${inv.categoria || '--'}</td>
                     <td>${formatarMoeda(inv.valor)}</td>
                     <td class="acoes">
-                        <button class="btn btn-sm btn-danger" onclick="excluirInvestimento(${inv.id})">🗑️</button>
+                        <button class="btn btn-sm btn-danger" onclick="window.excluirInvestimento(${inv.id})">🗑️</button>
                     </td>
                 </tr>`;
             });
@@ -1666,40 +1623,44 @@
 
         function atualizarFiltroMes() {
             const input = document.getElementById('filtroMes');
-            if (!input.value) {
-                input.value = getMesAtual();
-            }
+            if (!input.value) input.value = getMesAtual();
         }
 
         // ============================================================
-        //  UI - LANÇAMENTOS
+        //  EVENTOS DE UI (definidos dentro do módulo)
         // ============================================================
+        // Subnav
+        document.querySelectorAll('#subnavLancamentos button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#subnavLancamentos button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                subtabAtual = this.dataset.subtab;
+                renderizarTabelaLancamentos();
+            });
+        });
+
+        // Filtro categoria
+        document.getElementById('filtroCategoria').addEventListener('change', renderizarTabelaLancamentos);
+        document.getElementById('btnLimparFiltroCategoria').addEventListener('click', function() {
+            document.getElementById('filtroCategoria').value = '';
+            renderizarTabelaLancamentos();
+        });
+        document.getElementById('filtroMes').addEventListener('change', renderizarTabelaLancamentos);
+
+        // Modal Lançamento
         function abrirModalLancamento(dados) {
             const modal = document.getElementById('modalLancamento');
-            const title = document.getElementById('modalLancamentoTitle');
-
-            if (dados) {
-                title.textContent = 'Editar Lançamento';
-                document.getElementById('fData').value = dados.data;
-                document.getElementById('fDescricao').value = dados.descricao;
-                document.getElementById('fCategoria').value = dados.categoria;
-                document.getElementById('fTipo').value = dados.tipo;
-                document.getElementById('fValor').value = dados.valor;
-                document.getElementById('fFormaPagamento').value = dados.formaPagamento;
-                document.getElementById('fCartao').value = dados.cartaoId || '';
-                document.getElementById('fParcelas').value = dados.qtdParcelas || 1;
-                document.getElementById('fParcelaAtual').value = dados.parcelaAtual || 1;
-                document.getElementById('fEditId').value = dados.id;
-            } else {
-                title.textContent = 'Novo Lançamento';
-                document.getElementById('formLancamento').reset();
-                document.getElementById('fData').value = hoje();
-                document.getElementById('fTipo').value = 'despesa';
-                document.getElementById('fParcelas').value = 1;
-                document.getElementById('fParcelaAtual').value = 1;
-                document.getElementById('fCartao').value = '';
-                document.getElementById('fEditId').value = '';
-            }
+            document.getElementById('modalLancamentoTitle').textContent = dados ? 'Editar Lançamento' : 'Novo Lançamento';
+            document.getElementById('fEditId').value = dados ? dados.id : '';
+            document.getElementById('fData').value = dados ? dados.data : hoje();
+            document.getElementById('fDescricao').value = dados ? dados.descricao : '';
+            document.getElementById('fCategoria').value = dados ? dados.categoria : 'Outros';
+            document.getElementById('fTipo').value = dados ? dados.tipo : 'despesa';
+            document.getElementById('fValor').value = dados ? dados.valor : '';
+            document.getElementById('fFormaPagamento').value = dados ? dados.formaPagamento : 'dinheiro';
+            document.getElementById('fCartao').value = dados ? dados.cartaoId || '' : '';
+            document.getElementById('fParcelas').value = dados ? dados.qtdParcelas || 1 : 1;
+            document.getElementById('fParcelaAtual').value = dados ? dados.parcelaAtual || 1 : 1;
             modal.classList.add('show');
         }
 
@@ -1717,7 +1678,8 @@
                 tipo: document.getElementById('fTipo').value,
                 valor: parseFloat(document.getElementById('fValor').value) || 0,
                 formaPagamento: document.getElementById('fFormaPagamento').value,
-                cartaoId: document.getElementById('fCartao').value ? Number(document.getElementById('fCartao').value) : null,
+                cartaoId: document.getElementById('fCartao').value ? Number(document.getElementById('fCartao')
+                    .value) : null,
                 qtdParcelas: parseInt(document.getElementById('fParcelas').value) || 1,
                 parcelaAtual: parseInt(document.getElementById('fParcelaAtual').value) || 1,
             };
@@ -1726,10 +1688,9 @@
                 return;
             }
             if (dados.formaPagamento === 'cartao' && !dados.cartaoId) {
-                alert('Selecione um cartão para pagamento com cartão.');
+                alert('Selecione um cartão.');
                 return;
             }
-
             if (editId) {
                 editarLancamento(parseInt(editId), dados);
             } else {
@@ -1739,38 +1700,29 @@
             fecharModalLancamento();
         });
 
-        function editarLancamentoUI(id) {
-            const lanc = lancamentos.find(l => l.id === id);
-            if (!lanc) return;
-            abrirModalLancamento(lanc);
-        }
-
         document.getElementById('btnAdicionar').addEventListener('click', () => abrirModalLancamento(null));
         document.getElementById('btnCancelarLancamento').addEventListener('click', fecharModalLancamento);
         document.getElementById('modalLancamento').addEventListener('click', function(e) {
             if (e.target === this) fecharModalLancamento();
         });
 
-        // ============================================================
-        //  UI - CARTÕES
-        // ============================================================
+        // Expor funções para os botões nas tabelas (onclick)
+        window.editarLancamentoUI = (id) => {
+            const lanc = lancamentos.find(l => l.id === id);
+            if (lanc) abrirModalLancamento(lanc);
+        };
+        window.excluirLancamento = excluirLancamento;
+
+        // Modal Cartão
         function abrirModalCartao(dados) {
             const modal = document.getElementById('modalCartao');
-            const title = document.getElementById('modalCartaoTitle');
-            if (dados) {
-                title.textContent = 'Editar Cartão';
-                document.getElementById('cNome').value = dados.nome;
-                document.getElementById('cFechamento').value = dados.diaFechamento;
-                document.getElementById('cVencimento').value = dados.diaVencimento;
-                document.getElementById('cLimite').value = dados.limite;
-                document.getElementById('cCor').value = dados.cor || '#2a6df4';
-                document.getElementById('cEditId').value = dados.id;
-            } else {
-                title.textContent = 'Novo Cartão';
-                document.getElementById('formCartao').reset();
-                document.getElementById('cCor').value = '#2a6df4';
-                document.getElementById('cEditId').value = '';
-            }
+            document.getElementById('modalCartaoTitle').textContent = dados ? 'Editar Cartão' : 'Novo Cartão';
+            document.getElementById('cEditId').value = dados ? dados.id : '';
+            document.getElementById('cNome').value = dados ? dados.nome : '';
+            document.getElementById('cFechamento').value = dados ? dados.diaFechamento : '';
+            document.getElementById('cVencimento').value = dados ? dados.diaVencimento : '';
+            document.getElementById('cLimite').value = dados ? dados.limite : '';
+            document.getElementById('cCor').value = dados ? dados.cor : '#2a6df4';
             modal.classList.add('show');
         }
 
@@ -1789,34 +1741,18 @@
                 cor: document.getElementById('cCor').value,
             };
             if (!dados.nome || !dados.diaFechamento || !dados.diaVencimento || dados.limite <= 0) {
-                alert('Preencha todos os campos corretamente.');
+                alert('Preencha todos os campos.');
                 return;
             }
             if (editId) {
                 const index = cartoes.findIndex(c => c.id === parseInt(editId));
-                if (index !== -1) {
-                    cartoes[index] = { ...cartoes[index], ...dados };
-                }
+                if (index !== -1) cartoes[index] = { ...cartoes[index], ...dados };
             } else {
                 cartoes.push({ id: nextIdCartao++, ...dados });
             }
-            salvarDados();
-            renderizarTudo();
+            salvarNoFirebase();
             fecharModalCartao();
         });
-
-        function editarCartaoUI(id) {
-            const cartao = cartoes.find(c => c.id === id);
-            if (cartao) abrirModalCartao(cartao);
-        }
-
-        function excluirCartao(id) {
-            if (!confirm('Excluir este cartão? Os lançamentos associados permanecerão, mas sem vínculo.')) return;
-            cartoes = cartoes.filter(c => c.id !== id);
-            lancamentos.forEach(l => { if (l.cartaoId === id) l.cartaoId = null; });
-            salvarDados();
-            renderizarTudo();
-        }
 
         document.getElementById('btnAddCartao').addEventListener('click', () => abrirModalCartao(null));
         document.getElementById('btnCancelarCartao').addEventListener('click', fecharModalCartao);
@@ -1824,84 +1760,65 @@
             if (e.target === this) fecharModalCartao();
         });
 
-        // ============================================================
-        //  UI - DÍZIMO
-        // ============================================================
+        window.editarCartaoUI = (id) => {
+            const cartao = cartoes.find(c => c.id === id);
+            if (cartao) abrirModalCartao(cartao);
+        };
+        window.excluirCartao = (id) => {
+            if (!confirm('Excluir este cartão?')) return;
+            cartoes = cartoes.filter(c => c.id !== id);
+            lancamentos.forEach(l => { if (l.cartaoId === id) l.cartaoId = null; });
+            salvarNoFirebase();
+        };
+
+        // Dízimo
         document.getElementById('btnPagarDizimo').addEventListener('click', function() {
             const mesAtual = getMesAtual();
             const { saldo } = calcularDizimo(mesAtual);
-            if (saldo <= 0.01) {
-                alert('Você já pagou todo o dízimo devido para este mês.');
-                return;
-            }
-            const forma = prompt('Forma de pagamento (dinheiro, pix, cartao):', 'dinheiro');
+            if (saldo <= 0.01) { alert('Dízimo já pago.'); return; }
+            const forma = prompt('Forma (dinheiro, pix, cartao):', 'dinheiro');
             if (!forma) return;
             let cartaoId = null;
             if (forma.toLowerCase() === 'cartao') {
-                const cartaoNome = prompt('Digite o nome do cartão (ou deixe em branco):', '');
-                if (cartaoNome) {
-                    const cartao = cartoes.find(c => c.nome.toLowerCase() === cartaoNome.toLowerCase());
+                const nome = prompt('Nome do cartão (ou deixe em branco):');
+                if (nome) {
+                    const cartao = cartoes.find(c => c.nome.toLowerCase() === nome.toLowerCase());
                     if (cartao) cartaoId = cartao.id;
-                    else alert('Cartão não encontrado. Será registrado sem cartão.');
                 }
             }
             registrarPagamentoDizimo(saldo, forma.toLowerCase(), cartaoId);
-            alert(`Pagamento de dízimo de ${formatarMoeda(saldo)} registrado com sucesso!`);
         });
 
         document.getElementById('btnPagarDizimoPersonalizado').addEventListener('click', function() {
-            const modal = document.getElementById('modalDizimoPersonalizado');
-            const mesAtual = getMesAtual();
-            const { saldo } = calcularDizimo(mesAtual);
-            document.getElementById('dizimoValorPersonalizado').value = saldo > 0 ? saldo.toFixed(2) : '';
-            modal.classList.add('show');
+            document.getElementById('modalDizimoPersonalizado').classList.add('show');
         });
-
         document.getElementById('btnCancelarDizimoPersonalizado').addEventListener('click', function() {
             document.getElementById('modalDizimoPersonalizado').classList.remove('show');
         });
-
         document.getElementById('modalDizimoPersonalizado').addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('show');
         });
-
         document.getElementById('formDizimoPersonalizado').addEventListener('submit', function(e) {
             e.preventDefault();
             const valor = parseFloat(document.getElementById('dizimoValorPersonalizado').value);
-            if (!valor || valor <= 0) {
-                alert('Digite um valor válido.');
-                return;
-            }
+            if (!valor || valor <= 0) { alert('Valor inválido.'); return; }
             const forma = document.getElementById('dizimoFormaPagamento').value;
             let cartaoId = document.getElementById('dizimoCartao').value || null;
             if (cartaoId) cartaoId = Number(cartaoId);
             registrarPagamentoDizimo(valor, forma, cartaoId);
             document.getElementById('modalDizimoPersonalizado').classList.remove('show');
-            alert(`Pagamento de dízimo de ${formatarMoeda(valor)} registrado com sucesso!`);
         });
 
-        // ============================================================
-        //  UI - INVESTIMENTOS (CORRIGIDO)
-        // ============================================================
+        // Investimentos
         function abrirModalInvestimento(dados) {
             const modal = document.getElementById('modalInvestimento');
-            const title = document.getElementById('modalInvestTitle');
-            if (dados) {
-                title.textContent = 'Editar Movimentação';
-                document.getElementById('invData').value = dados.data;
-                document.getElementById('invDescricao').value = dados.descricao || '';
-                document.getElementById('invTipo').value = dados.tipo;
-                document.getElementById('invValor').value = dados.valor;
-                document.getElementById('invCategoria').value = dados.categoria || 'Outros';
-                document.getElementById('invEditId').value = dados.id;
-            } else {
-                title.textContent = 'Novo Aporte';
-                document.getElementById('formInvestimento').reset();
-                document.getElementById('invData').value = hoje();
-                document.getElementById('invTipo').value = 'aporte';
-                document.getElementById('invValor').value = '';
-                document.getElementById('invEditId').value = '';
-            }
+            document.getElementById('modalInvestTitle').textContent = dados ? 'Editar Movimentação' : 'Novo Aporte';
+            document.getElementById('invEditId').value = dados ? dados.id : '';
+            document.getElementById('invData').value = dados ? dados.data : hoje();
+            document.getElementById('invDescricao').value = dados ? dados.descricao : '';
+            document.getElementById('invTipo').value = dados ? dados.tipo : 'aporte';
+            document.getElementById('invValor').value = dados ? dados.valor : '';
+            document.getElementById('invCategoria').value = dados ? dados.categoria : 'Outros';
             modal.classList.add('show');
         }
 
@@ -1909,7 +1826,6 @@
             document.getElementById('modalInvestimento').classList.remove('show');
         }
 
-        // Evento submit do formulário de investimento
         document.getElementById('formInvestimento').addEventListener('submit', function(e) {
             e.preventDefault();
             const editId = document.getElementById('invEditId').value;
@@ -1920,12 +1836,11 @@
                 valor: parseFloat(document.getElementById('invValor').value) || 0,
                 categoria: document.getElementById('invCategoria').value,
             };
-            if (!dados.data || dados.valor <= 0) {
-                alert('Preencha todos os campos obrigatórios.');
-                return;
-            }
+            if (!dados.data || dados.valor <= 0) { alert('Preencha todos os campos.'); return; }
             if (editId) {
-                editarInvestimento(parseInt(editId), dados);
+                const index = investimentos.findIndex(i => i.id === parseInt(editId));
+                if (index !== -1) investimentos[index] = { ...investimentos[index], ...dados };
+                salvarNoFirebase();
             } else {
                 adicionarInvestimento(dados);
             }
@@ -1934,14 +1849,7 @@
 
         document.getElementById('btnAddInvestimento').addEventListener('click', () => abrirModalInvestimento(null));
         document.getElementById('btnResgatarInvestimento').addEventListener('click', function() {
-            const modal = document.getElementById('modalInvestimento');
-            document.getElementById('modalInvestTitle').textContent = 'Resgatar Investimento';
-            document.getElementById('formInvestimento').reset();
-            document.getElementById('invData').value = hoje();
-            document.getElementById('invTipo').value = 'resgate';
-            document.getElementById('invValor').value = '';
-            document.getElementById('invEditId').value = '';
-            modal.classList.add('show');
+            abrirModalInvestimento({ tipo: 'resgate' });
         });
         document.getElementById('btnCancelarInvestimento').addEventListener('click', fecharModalInvestimento);
         document.getElementById('modalInvestimento').addEventListener('click', function(e) {
@@ -1950,17 +1858,17 @@
 
         document.getElementById('btnAplicarRendimento').addEventListener('click', function() {
             const taxa = parseFloat(document.getElementById('taxaRendimento').value);
-            if (isNaN(taxa) || taxa <= 0) {
-                alert('Digite uma taxa mensal válida (ex: 0.8).');
-                return;
-            }
-            if (!confirm(`Aplicar rendimento de ${taxa}% sobre o saldo do início do mês?`)) return;
+            if (isNaN(taxa) || taxa <= 0) { alert('Taxa inválida.'); return; }
+            if (!confirm(`Aplicar rendimento de ${taxa}%?`)) return;
             aplicarRendimentoMensal(taxa);
         });
 
-        // ============================================================
-        //  EXPORT / IMPORT
-        // ============================================================
+        window.excluirInvestimento = (id) => {
+            if (!confirm('Excluir esta movimentação?')) return;
+            excluirInvestimento(id);
+        };
+
+        // Export/Import (local)
         document.getElementById('btnExportar').addEventListener('click', function() {
             const data = { lancamentos, cartoes, investimentos };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1987,36 +1895,21 @@
                         lancamentos = data.lancamentos || [];
                         cartoes = data.cartoes || [];
                         investimentos = data.investimentos || [];
-                        const maxIdL = lancamentos.reduce((max, l) => Math.max(max, l.id), 0);
-                        const maxIdC = cartoes.reduce((max, c) => Math.max(max, c.id), 0);
-                        const maxIdI = investimentos.reduce((max, i) => Math.max(max, i.id), 0);
-                        nextIdLancamento = maxIdL + 1;
-                        nextIdCartao = maxIdC + 1;
-                        nextIdInvest = maxIdI + 1;
-                        salvarDados();
-                        renderizarTudo();
-                        alert('Dados importados com sucesso!');
+                        nextIdLancamento = lancamentos.reduce((max, l) => Math.max(max, l.id), 0) + 1;
+                        nextIdCartao = cartoes.reduce((max, c) => Math.max(max, c.id), 0) + 1;
+                        nextIdInvest = investimentos.reduce((max, i) => Math.max(max, i.id), 0) + 1;
+                        salvarNoFirebase();
+                        alert('Dados importados!');
                     } else {
                         alert('Arquivo inválido.');
                     }
-                } catch (err) {
-                    alert('Erro ao importar: ' + err.message);
-                }
+                } catch (err) { alert('Erro ao importar: ' + err.message); }
             };
             reader.readAsText(file);
             e.target.value = '';
         });
 
-        // ============================================================
-        //  FILTRO MÊS
-        // ============================================================
-        document.getElementById('filtroMes').addEventListener('change', function() {
-            renderizarTabelaLancamentos();
-        });
-
-        // ============================================================
-        //  NAVEGAÇÃO PRINCIPAL
-        // ============================================================
+        // Navegação entre abas
         document.querySelectorAll('.nav-tabs button').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
@@ -2025,111 +1918,17 @@
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
                 document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add(
                 'active');
-                if (tab === 'dashboard') {
-                    renderizarGraficos();
-                }
-                if (tab === 'dizimo') {
-                    renderizarDizimo();
-                }
-                if (tab === 'investimentos') {
-                    renderizarInvestimentos();
-                    renderizarGraficoInvestimentos();
-                }
+                if (tab === 'dashboard') renderizarGraficos();
+                if (tab === 'investimentos') { renderizarInvestimentos();
+                    renderizarGraficoInvestimentos(); }
             });
         });
 
         // ============================================================
         //  INICIALIZAÇÃO
         // ============================================================
-        carregarDados();
-        renderizarTudo();
-
-        if (cartoes.length === 0) {
-            cartoes.push({ id: nextIdCartao++, nome: 'Visa Gold', diaFechamento: 15, diaVencimento: 5, limite: 10000,
-                cor: '#2a6df4' });
-            cartoes.push({ id: nextIdCartao++, nome: 'Mastercard Black', diaFechamento: 28, diaVencimento: 10,
-                limite: 8000, cor: '#f4b400' });
-            salvarDados();
-            renderizarTudo();
-        }
-
-        if (lancamentos.length === 0) {
-            const hojeStr = hoje();
-            const mes = mesAno(hojeStr);
-            const ex1 = {
-                id: nextIdLancamento++,
-                data: hojeStr,
-                descricao: 'Salário',
-                categoria: 'Outros',
-                tipo: 'receita',
-                valor: 4500.00,
-                formaPagamento: 'pix',
-                cartaoId: null,
-                qtdParcelas: 1,
-                parcelaAtual: 1,
-                mesCompetencia: mes
-            };
-            const ex2 = {
-                id: nextIdLancamento++,
-                data: hojeStr,
-                descricao: 'Supermercado',
-                categoria: 'Alimentação',
-                tipo: 'despesa',
-                valor: 350.75,
-                formaPagamento: 'cartao',
-                cartaoId: 1,
-                qtdParcelas: 1,
-                parcelaAtual: 1,
-                mesCompetencia: mes
-            };
-            const ex3 = {
-                id: nextIdLancamento++,
-                data: hojeStr,
-                descricao: 'Smartphone',
-                categoria: 'Eletrônicos',
-                tipo: 'despesa',
-                valor: 3000.00,
-                formaPagamento: 'cartao',
-                cartaoId: 2,
-                qtdParcelas: 6,
-                parcelaAtual: 1,
-                mesCompetencia: mes
-            };
-            const ex4 = {
-                id: nextIdLancamento++,
-                data: hojeStr,
-                descricao: 'Café da manhã',
-                categoria: 'Alimentação',
-                tipo: 'despesa',
-                valor: 25.50,
-                formaPagamento: 'pix',
-                cartaoId: null,
-                qtdParcelas: 1,
-                parcelaAtual: 1,
-                mesCompetencia: mes
-            };
-            lancamentos.push(ex1, ex2, ex4);
-            const parcelas = gerarParcelas(ex3);
-            lancamentos.push(...parcelas);
-            salvarDados();
-            renderizarTudo();
-        }
-
-        if (investimentos.length === 0) {
-            investimentos.push({
-                id: nextIdInvest++,
-                data: hoje(),
-                descricao: 'Aporte inicial',
-                tipo: 'aporte',
-                valor: 500.00,
-                categoria: 'CDB'
-            });
-            salvarDados();
-            renderizarTudo();
-        }
-
-        console.log('Super Planilha Financeira + Dízimo + Investimentos carregada!');
+        // Carrega dados do Firebase (ou localStorage fallback)
+        await carregarDoFirebase();
     </script>
-
 </body>
 </html>
