@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>💰 Finanças Família Silva</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
@@ -335,6 +335,7 @@
             overflow-x: auto;
             border-radius: 16px;
             border: 1px solid #e6edf4;
+            -webkit-overflow-scrolling: touch;
         }
         table {
             width: 100%;
@@ -606,23 +607,254 @@
             gap: 8px;
         }
 
-        @media (max-width: 600px) {
+        /* ============================================================
+           RESPONSIVIDADE MELHORADA PARA DISPOSITIVOS MÓVEIS
+           ============================================================ */
+        @media (max-width: 768px) {
             .app-container {
                 padding: 16px;
+                border-radius: 20px;
             }
             .header {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
+            }
+            .header h1 {
+                font-size: 22px;
             }
             .saldo-resumo {
                 justify-content: space-around;
-                padding: 8px 12px;
+                padding: 6px 12px;
+                flex-wrap: wrap;
+                border-radius: 40px;
+            }
+            .saldo-resumo .item {
+                font-size: 13px;
+                gap: 4px;
+            }
+            .saldo-resumo .item .valor {
+                font-size: 16px;
+            }
+            .nav-tabs {
+                gap: 4px;
+                margin-bottom: 20px;
+            }
+            .nav-tabs button {
+                font-size: 13px;
+                padding: 8px 14px;
+            }
+            .subnav button {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .card-stat {
+                padding: 14px 16px;
+            }
+            .card-stat .value {
+                font-size: 22px;
+            }
+            .chart-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .chart-box canvas {
+                max-height: 150px;
+            }
+            .tabela-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tabela-wrapper table {
+                font-size: 12px;
+                min-width: 600px; /* força scroll se necessário */
+            }
+            .tabela-wrapper th,
+            .tabela-wrapper td {
+                padding: 6px 8px;
+                white-space: nowrap;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 6px 14px;
+            }
+            .btn-sm {
+                padding: 3px 8px;
+                font-size: 12px;
             }
             .modal {
                 padding: 20px;
+                max-width: 100%;
+                margin: 10px;
+                border-radius: 20px;
             }
             .modal .row2 {
                 grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .cartoes-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .invest-resumo {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .invest-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .invest-actions .flex {
+                margin-left: 0 !important;
+                justify-content: center;
+            }
+            .dizimo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .total-avulsos {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .filtros select,
+            .filtros input {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+            .mes-referencia {
+                font-size: 15px;
+                padding: 4px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 10px;
+                border-radius: 16px;
+            }
+            .header h1 {
+                font-size: 18px;
+            }
+            .header h1 span {
+                font-size: 11px;
+                padding: 1px 8px;
+            }
+            .saldo-resumo {
+                padding: 4px 8px;
+                gap: 8px;
+            }
+            .saldo-resumo .item {
+                font-size: 11px;
+            }
+            .saldo-resumo .item .valor {
+                font-size: 14px;
+            }
+            .nav-tabs button {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+            .subnav button {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .card-stat {
+                padding: 10px 12px;
+            }
+            .card-stat .title {
+                font-size: 12px;
+            }
+            .card-stat .value {
+                font-size: 18px;
+            }
+            .tabela-wrapper table {
+                font-size: 11px;
+                min-width: 500px;
+            }
+            .tabela-wrapper th,
+            .tabela-wrapper td {
+                padding: 4px 6px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+            .btn-sm {
+                padding: 2px 6px;
+                font-size: 10px;
+            }
+            .modal {
+                padding: 16px;
+                margin: 8px;
+            }
+            .modal h2 {
+                font-size: 18px;
+            }
+            .modal input,
+            .modal select {
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+            .cartoes-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .invest-resumo {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .invest-card {
+                padding: 12px 14px;
+            }
+            .invest-card .value {
+                font-size: 18px;
+            }
+            .dizimo-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .dizimo-card {
+                padding: 12px 14px;
+            }
+            .dizimo-card .value {
+                font-size: 18px;
+            }
+            .total-avulsos {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            .total-avulsos span {
+                font-size: 16px;
+            }
+            .filtros select,
+            .filtros input {
+                font-size: 12px;
+                padding: 4px 6px;
+            }
+            .mes-referencia {
+                font-size: 13px;
+                padding: 4px 8px;
+            }
+            .chart-box {
+                padding: 10px;
+            }
+            .chart-box canvas {
+                max-height: 120px;
+            }
+            .toolbar .left {
+                gap: 6px;
+            }
+            .toolbar .left .btn {
+                font-size: 11px;
+                padding: 4px 8px;
             }
         }
     </style>
