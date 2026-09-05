@@ -183,7 +183,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 18px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
         .card-stat {
             background: #f9fbfe;
@@ -218,17 +218,34 @@
             color: #00695c;
         }
 
-        .mes-referencia {
-            text-align: center;
-            font-size: 18px;
-            font-weight: 500;
-            color: #1a3c6e;
-            margin-top: -10px;
+        .mes-selector-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             margin-bottom: 20px;
-            background: #eef3fa;
-            padding: 8px 16px;
-            border-radius: 40px;
-            display: inline-block;
+            flex-wrap: wrap;
+        }
+        .mes-selector-container label {
+            font-weight: 600;
+            color: #1a3c6e;
+            font-size: 16px;
+        }
+        .mes-selector-container input[type="month"] {
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 2px solid #d0d9e5;
+            font-size: 16px;
+            font-weight: 500;
+            background: #fff;
+            color: #1a3c6e;
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s;
+        }
+        .mes-selector-container input[type="month"]:focus {
+            border-color: #2a6df4;
+            box-shadow: 0 0 0 3px rgba(42, 109, 244, 0.2);
         }
 
         .chart-row {
@@ -733,9 +750,12 @@
                 padding: 4px 8px;
                 min-width: 100px;
             }
-            .mes-referencia {
-                font-size: 15px;
-                padding: 4px 12px;
+            .mes-selector-container input[type="month"] {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            .mes-selector-container label {
+                font-size: 14px;
             }
         }
 
@@ -847,9 +867,13 @@
                 padding: 4px 6px;
                 min-width: 80px;
             }
-            .mes-referencia {
+            .mes-selector-container input[type="month"] {
                 font-size: 13px;
                 padding: 4px 8px;
+                min-width: 130px;
+            }
+            .mes-selector-container label {
+                font-size: 13px;
             }
             .chart-box {
                 padding: 10px;
@@ -898,11 +922,15 @@
                 <div class="card-stat" style="border-left:4px solid #9c27b0;"><div class="title">Dízimo Devido (10%)</div><div class="value dizimo" id="dashDizimo">R$ 0</div></div>
                 <div class="card-stat" style="border-left:4px solid #00695c;"><div class="title">Patrimônio Investido</div><div class="value invest" id="dashInvest">R$ 0</div></div>
             </div>
-            <div style="text-align:center; margin-bottom:20px;">
-                <span class="mes-referencia" id="mesReferencia">📅 Mês de referência: --</span>
+
+            <!-- Seletor de Mês -->
+            <div class="mes-selector-container">
+                <label for="mesSelecionado">📅 Mês de referência:</label>
+                <input type="month" id="mesSelecionado">
             </div>
+
             <div class="chart-row">
-                <div class="chart-box"><h3>📈 Evolução Mensal</h3><canvas id="chartEvolucao"></canvas></div>
+                <div class="chart-box"><h3>📈 Evolução Mensal (últimos 6 meses)</h3><canvas id="chartEvolucao"></canvas></div>
                 <div class="chart-box"><h3>🧩 Gastos por Categoria</h3><canvas id="chartCategorias"></canvas></div>
                 <div class="chart-box"><h3>💳 Gastos por Cartão</h3><canvas id="chartCartoes"></canvas></div>
             </div>
@@ -1239,6 +1267,21 @@
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
         };
+        const getMesAnterior = (mes) => {
+            const [ano, mesNum] = mes.split('-').map(Number);
+            const d = new Date(ano, mesNum - 1, 1);
+            d.setMonth(d.getMonth() - 1);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        };
+        const getMesesAnteriores = (mes, quantidade) => {
+            const meses = [];
+            let [ano, mesNum] = mes.split('-').map(Number);
+            for (let i = 0; i < quantidade; i++) {
+                const d = new Date(ano, mesNum - 1 - i, 1);
+                meses.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+            }
+            return meses.reverse();
+        };
 
         // ============================================================
         //  FUNÇÕES DE NEGÓCIO
@@ -1435,20 +1478,16 @@
                     renderizarTudo();
                     console.log('Dados carregados do Firebase');
                 } else {
-                    // Inicializar com dados exemplo
                     criarDadosExemplo();
-                    // Salvar imediatamente
                     await salvarNoFirebase();
                     renderizarTudo();
                 }
             } catch (err) {
                 console.error('Erro ao carregar do Firebase:', err);
-                // Fallback para localStorage
                 carregarDoLocalStorage();
             }
         }
 
-        // Fallback localStorage (para desenvolvimento)
         function carregarDoLocalStorage() {
             try {
                 const data = JSON.parse(localStorage.getItem('financas_data'));
@@ -1469,14 +1508,12 @@
         function criarDadosExemplo() {
             const hojeStr = hoje();
             const mes = mesAno(hojeStr);
-            // Cartões
             cartoes = [
                 { id: nextIdCartao++, nome: 'Visa Gold', diaFechamento: 15, diaVencimento: 5, limite: 10000,
                     cor: '#2a6df4' },
                 { id: nextIdCartao++, nome: 'Mastercard Black', diaFechamento: 28, diaVencimento: 10, limite: 8000,
                     cor: '#f4b400' }
             ];
-            // Lançamentos
             const ex1 = { id: nextIdLancamento++, data: hojeStr, descricao: 'Salário', categoria: 'Outros',
                 tipo: 'receita', valor: 4500, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
                 parcelaAtual: 1, mesCompetencia: mes };
@@ -1490,12 +1527,10 @@
                 tipo: 'despesa', valor: 25.5, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
                 parcelaAtual: 1, mesCompetencia: mes };
             lancamentos = [];
-            // Usar adicionarLancamento para garantir consistência e geração de parcelas
             adicionarLancamento(ex1);
             adicionarLancamento(ex2);
             adicionarLancamento(ex3);
             adicionarLancamento(ex4);
-            // Investimentos
             investimentos = [{ id: nextIdInvest++, data: hojeStr, descricao: 'Aporte inicial', tipo: 'aporte',
                 valor: 500, categoria: 'CDB' }];
         }
@@ -1505,8 +1540,20 @@
         // ============================================================
         let subtabAtual = 'todos';
         let chartEvolucao, chartCategorias, chartCartoes, chartInvest;
+        let mesSelecionado = getMesAtual(); // mês atual por padrão
 
         function renderizarTudo() {
+            // Sincroniza o seletor de mês do Dashboard com a variável
+            const inputMes = document.getElementById('mesSelecionado');
+            if (inputMes && inputMes.value !== mesSelecionado) {
+                inputMes.value = mesSelecionado;
+            }
+            // Sincroniza o filtro de mês da aba Lançamentos
+            const filtroMes = document.getElementById('filtroMes');
+            if (filtroMes && filtroMes.value !== mesSelecionado) {
+                filtroMes.value = mesSelecionado;
+            }
+
             renderizarResumoHeader();
             renderizarDashboard();
             renderizarTabelaLancamentos();
@@ -1516,10 +1563,8 @@
             renderizarInvestimentos();
             renderizarContagem();
             popularSelectCartoes();
-            popularFiltroCartao(); // novo
-            atualizarFiltroMes();
+            popularFiltroCartao();
             popularSelectCartoesDizimo();
-            atualizarMesReferencia();
         }
 
         function renderizarResumoHeader() {
@@ -1531,64 +1576,66 @@
         }
 
         function renderizarDashboard() {
-            const mesAtual = getMesAtual();
-            const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mesAtual)
+            // Filtra lançamentos do mês selecionado
+            const mes = mesSelecionado;
+            const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
-            const despesasMes = lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === mesAtual)
+            const despesasMes = lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
-            const saldoTotal = lancamentos.filter(l => l.tipo === 'receita').reduce((s, l) => s + l.valor, 0) -
-                lancamentos.filter(l => l.tipo === 'despesa').reduce((s, l) => s + l.valor, 0);
-            document.getElementById('dashSaldo').textContent = formatarMoeda(saldoTotal);
+            const saldoMes = receitasMes - despesasMes;
+
+            document.getElementById('dashSaldo').textContent = formatarMoeda(saldoMes);
             document.getElementById('dashReceitas').textContent = formatarMoeda(receitasMes);
             document.getElementById('dashDespesas').textContent = formatarMoeda(despesasMes);
-            document.getElementById('dashEconomia').textContent = formatarMoeda(receitasMes - despesasMes);
-            const { devido } = calcularDizimo(mesAtual);
+            document.getElementById('dashEconomia').textContent = formatarMoeda(saldoMes);
+
+            const { devido } = calcularDizimo(mes);
             document.getElementById('dashDizimo').textContent = formatarMoeda(devido);
+
+            // Patrimônio Investido é global (não filtrado por mês)
             const { patrimonio } = calcularInvestimentos();
             document.getElementById('dashInvest').textContent = formatarMoeda(patrimonio);
+
             renderizarGraficos();
         }
 
-        function atualizarMesReferencia() {
-            document.getElementById('mesReferencia').textContent = `📅 Mês de referência: ${nomeMes(getMesAtual())}`;
-        }
-
         function renderizarGraficos() {
-            // Evolução mensal
-            const meses = [];
-            const receitas = [];
-            const despesas = [];
-            const hoje = new Date();
-            for (let i = 5; i >= 0; i--) {
-                const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-                const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-                meses.push(nomeMes(key));
-                const rec = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === key)
+            // Gráfico de Evolução Mensal (últimos 6 meses a partir do mês selecionado)
+            const mesesEvolucao = getMesesAnteriores(mesSelecionado, 6);
+            const receitasEvolucao = mesesEvolucao.map(m => {
+                return lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === m)
                     .reduce((s, l) => s + l.valor, 0);
-                const des = lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === key)
+            });
+            const despesasEvolucao = mesesEvolucao.map(m => {
+                return lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === m)
                     .reduce((s, l) => s + l.valor, 0);
-                receitas.push(rec);
-                despesas.push(des);
-            }
+            });
+
             const ctxEvol = document.getElementById('chartEvolucao').getContext('2d');
             if (chartEvolucao) chartEvolucao.destroy();
             chartEvolucao = new Chart(ctxEvol, {
                 type: 'bar',
                 data: {
-                    labels: meses,
+                    labels: mesesEvolucao.map(m => nomeMes(m)),
                     datasets: [
-                        { label: 'Receitas', data: receitas, backgroundColor: '#0f9d58', borderRadius: 4 },
-                        { label: 'Despesas', data: despesas, backgroundColor: '#d93025', borderRadius: 4 }
+                        { label: 'Receitas', data: receitasEvolucao, backgroundColor: '#0f9d58', borderRadius: 4 },
+                        { label: 'Despesas', data: despesasEvolucao, backgroundColor: '#d93025', borderRadius: 4 }
                     ]
                 },
-                options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
             });
 
-            // Gastos por categoria
+            // Gastos por Categoria (apenas despesas do mês selecionado)
+            const mes = mesSelecionado;
             const catMap = {};
-            lancamentos.filter(l => l.tipo === 'despesa').forEach(l => {
-                catMap[l.categoria] = (catMap[l.categoria] || 0) + l.valor;
-            });
+            lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === mes)
+                .forEach(l => {
+                    catMap[l.categoria] = (catMap[l.categoria] || 0) + l.valor;
+                });
             const catLabels = Object.keys(catMap);
             const catValues = Object.values(catMap);
             const ctxCat = document.getElementById('chartCategorias').getContext('2d');
@@ -1604,9 +1651,10 @@
                 options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
             });
 
-            // Gastos por cartão
+            // Gastos por Cartão (apenas despesas do mês selecionado)
             const cartaoMap = {};
-            lancamentos.filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId)
+            lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === mes && l.formaPagamento === 'cartao' && l
+                    .cartaoId)
                 .forEach(l => {
                     const cartao = obterCartao(l.cartaoId);
                     const nome = cartao ? cartao.nome : 'Cartão desconhecido';
@@ -1627,7 +1675,7 @@
                 options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
             });
 
-            // Investimentos
+            // Gráfico de investimentos (mantido igual)
             renderizarGraficoInvestimentos();
         }
 
@@ -1679,12 +1727,10 @@
 
             let lista = [...lancamentos];
 
-            // Filtro por mês
             if (filtroMes) {
                 lista = lista.filter(l => l.mesCompetencia === filtroMes);
             }
 
-            // Filtro por subtab (subnav)
             if (subtabAtual === 'entradas') {
                 lista = lista.filter(l => l.tipo === 'receita');
             } else if (subtabAtual === 'saidas') {
@@ -1694,31 +1740,23 @@
                     'pix'));
             }
 
-            // Filtro por categoria
             if (filtroCategoria) {
                 lista = lista.filter(l => l.categoria === filtroCategoria);
             }
-
-            // NOVOS FILTROS:
-            // Forma de pagamento
             if (filtroForma) {
                 lista = lista.filter(l => l.formaPagamento === filtroForma);
             }
-
-            // Cartão específico (pelo nome)
             if (filtroCartaoNome) {
                 const cartao = cartoes.find(c => c.nome === filtroCartaoNome);
                 if (cartao) {
                     lista = lista.filter(l => l.cartaoId === cartao.id);
                 } else {
-                    // Se o cartão não existir (excluído), não mostra nada
                     lista = [];
                 }
             }
 
             lista.sort((a, b) => b.data.localeCompare(a.data));
 
-            // Total de avulsos (visível apenas na sub-aba avulsos)
             const container = document.getElementById('totalAvulsosContainer');
             if (subtabAtual === 'avulsos') {
                 container.style.display = 'block';
@@ -1818,8 +1856,8 @@
         }
 
         function renderizarDizimo() {
-            const mesAtual = getMesAtual();
-            const { receitasMes, devido, pago, saldo } = calcularDizimo(mesAtual);
+            const mes = mesSelecionado;
+            const { receitasMes, devido, pago, saldo } = calcularDizimo(mes);
             document.getElementById('dizimoReceitas').textContent = formatarMoeda(receitasMes);
             document.getElementById('dizimoDevido').textContent = formatarMoeda(devido);
             document.getElementById('dizimoPago').textContent = formatarMoeda(pago);
@@ -1858,8 +1896,9 @@
             document.getElementById('invTotalResgatado').textContent = formatarMoeda(resgates);
             document.getElementById('invRendimentos').textContent = formatarMoeda(rendimentos);
             document.getElementById('invPatrimonio').textContent = formatarMoeda(patrimonio);
-            const mesAtual = getMesAtual();
-            const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mesAtual)
+
+            const mes = mesSelecionado;
+            const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
             document.getElementById('invSugestao').textContent = formatarMoeda(receitasMes * 0.05);
 
@@ -1903,7 +1942,6 @@
             if (current) sel.value = current;
         }
 
-        // Função para popular o filtro de cartão
         function popularFiltroCartao() {
             const sel = document.getElementById('filtroCartao');
             const current = sel.value;
@@ -1924,14 +1962,25 @@
             if (current) sel.value = current;
         }
 
-        function atualizarFiltroMes() {
-            const input = document.getElementById('filtroMes');
-            if (!input.value) input.value = getMesAtual();
-        }
+        // ============================================================
+        //  EVENTOS DE UI
+        // ============================================================
+        // Seletor de mês no Dashboard
+        document.getElementById('mesSelecionado').addEventListener('change', function(e) {
+            mesSelecionado = e.target.value;
+            // Sincroniza com o filtro da aba Lançamentos
+            document.getElementById('filtroMes').value = mesSelecionado;
+            renderizarTudo();
+        });
 
-        // ============================================================
-        //  EVENTOS DE UI (definidos dentro do módulo)
-        // ============================================================
+        // Filtro de mês na aba Lançamentos
+        document.getElementById('filtroMes').addEventListener('change', function(e) {
+            mesSelecionado = e.target.value;
+            // Sincroniza com o seletor do Dashboard
+            document.getElementById('mesSelecionado').value = mesSelecionado;
+            renderizarTudo();
+        });
+
         // Subnav
         document.querySelectorAll('#subnavLancamentos button').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1942,18 +1991,14 @@
             });
         });
 
-        // Filtros
         document.getElementById('filtroCategoria').addEventListener('change', renderizarTabelaLancamentos);
         document.getElementById('filtroFormaPagamento').addEventListener('change', renderizarTabelaLancamentos);
         document.getElementById('filtroCartao').addEventListener('change', renderizarTabelaLancamentos);
-        document.getElementById('filtroMes').addEventListener('change', renderizarTabelaLancamentos);
 
-        // Limpar todos os filtros
         document.getElementById('btnLimparFiltros').addEventListener('click', function() {
             document.getElementById('filtroCategoria').value = '';
             document.getElementById('filtroFormaPagamento').value = '';
             document.getElementById('filtroCartao').value = '';
-            // O filtro de mês não limpamos para não perder a referência do mês atual
             renderizarTabelaLancamentos();
         });
 
@@ -2016,7 +2061,6 @@
             if (e.target === this) fecharModalLancamento();
         });
 
-        // Expor funções para os botões nas tabelas (onclick)
         window.editarLancamentoUI = (id) => {
             const lanc = lancamentos.find(l => l.id === id);
             if (lanc) abrirModalLancamento(lanc);
@@ -2083,7 +2127,7 @@
 
         // Dízimo
         document.getElementById('btnPagarDizimo').addEventListener('click', function() {
-            const mesAtual = getMesAtual();
+            const mesAtual = mesSelecionado;
             const { saldo } = calcularDizimo(mesAtual);
             if (saldo <= 0.01) { alert('Dízimo já pago.'); return; }
             const forma = prompt('Forma (dinheiro, pix, cartao):', 'dinheiro');
@@ -2178,7 +2222,7 @@
             excluirInvestimento(id);
         };
 
-        // Export/Import (local)
+        // Export/Import
         document.getElementById('btnExportar').addEventListener('click', function() {
             const data = { lancamentos, cartoes, investimentos };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2238,6 +2282,11 @@
         //  INICIALIZAÇÃO
         // ============================================================
         await carregarDoFirebase();
+        // Após carregar, definir o mês selecionado como o atual e atualizar os campos
+        mesSelecionado = getMesAtual();
+        document.getElementById('mesSelecionado').value = mesSelecionado;
+        document.getElementById('filtroMes').value = mesSelecionado;
+        renderizarTudo();
     </script>
 </body>
 </html>
