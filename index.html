@@ -905,7 +905,7 @@
 
         <nav class="nav-tabs" id="navTabs">
             <button class="active" data-tab="dashboard">📊 Dashboard</button>
-            <button data-tab="lancamentos">📋 Lançamentos <span class="badge" id="countLancamentos">0</span></button>
+            <button data-tab="lancamentos">📋 Lançamentos</button>
             <button data-tab="cartoes">💳 Cartões</button>
             <button data-tab="parcelas">📅 Parcelas</button>
             <button data-tab="dizimo">✝️ Dízimo</button>
@@ -1567,7 +1567,6 @@
             renderizarParcelas();
             renderizarDizimo();
             renderizarInvestimentos();
-            renderizarContagem();
             popularSelectCartoes();
             popularFiltroCartao();
             popularSelectCartoesDizimo();
@@ -1933,10 +1932,6 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-        }
-
-        function renderizarContagem() {
-            document.getElementById('countLancamentos').textContent = lancamentos.length;
         }
 
         function popularSelectCartoes() {
