@@ -1532,7 +1532,6 @@
                 tipo: 'despesa', valor: 25.5, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
                 parcelaAtual: 1, mesCompetencia: mes };
             lancamentos = [];
-            // Usar adicionarLancamento com await
             await adicionarLancamento(ex1);
             await adicionarLancamento(ex2);
             await adicionarLancamento(ex3);
@@ -1572,7 +1571,7 @@
             popularSelectCartoesDizimo();
         }
 
-        // ===== CABEÇALHO CORRIGIDO (filtrado por mês) =====
+        // ===== CABEÇALHO (filtrado por mês) =====
         function renderizarResumoHeader() {
             const mes = mesSelecionado;
             const totalReceitas = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
@@ -1806,7 +1805,7 @@
             tbody.innerHTML = html;
         }
 
-        // ===== CARTÕES =====
+        // ===== CARTÕES (CORRIGIDO - FILTRADO POR MÊS) =====
         function renderizarCartoes() {
             const grid = document.getElementById('listaCartoes');
             if (!cartoes.length) {
@@ -1815,8 +1814,9 @@
             }
             let html = '';
             cartoes.forEach(c => {
+                // Filtra gastos apenas do mês selecionado
                 const gastos = lancamentos
-                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId === c.id)
+                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId === c.id && l.mesCompetencia === mesSelecionado)
                     .reduce((s, l) => s + l.valor, 0);
                 const saldoDisponivel = c.limite - gastos;
                 const cor = saldoDisponivel >= 0 ? '#0f9d58' : '#d93025';
@@ -1824,7 +1824,7 @@
                     <div class="nome">${c.nome}</div>
                     <div class="dias">Fechamento: ${c.diaFechamento} | Vencimento: ${c.diaVencimento}</div>
                     <div class="limite">Limite: ${formatarMoeda(c.limite)}</div>
-                    <div>Gastos: ${formatarMoeda(gastos)}</div>
+                    <div>Gastos (mês selecionado): ${formatarMoeda(gastos)}</div>
                     <div style="font-weight:600; color:${cor};">Saldo disponível: ${formatarMoeda(saldoDisponivel)}</div>
                     <div style="margin-top:8px;">
                         <button class="btn btn-sm" onclick="window.editarCartaoUI(${c.id})">✏️</button>
@@ -1967,21 +1967,18 @@
         // ============================================================
         //  EVENTOS DE UI
         // ============================================================
-        // Seletor de mês no Dashboard
         document.getElementById('mesSelecionado').addEventListener('change', function(e) {
             mesSelecionado = e.target.value;
             document.getElementById('filtroMes').value = mesSelecionado;
             renderizarTudo();
         });
 
-        // Filtro de mês na aba Lançamentos
         document.getElementById('filtroMes').addEventListener('change', function(e) {
             mesSelecionado = e.target.value;
             document.getElementById('mesSelecionado').value = mesSelecionado;
             renderizarTudo();
         });
 
-        // Subnav
         document.querySelectorAll('#subnavLancamentos button').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#subnavLancamentos button').forEach(b => b.classList.remove('active'));
@@ -2285,7 +2282,6 @@
         //  INICIALIZAÇÃO
         // ============================================================
         await carregarDoFirebase();
-        // Define o mês selecionado como o atual e sincroniza
         mesSelecionado = getMesAtual();
         document.getElementById('mesSelecionado').value = mesSelecionado;
         document.getElementById('filtroMes').value = mesSelecionado;
