@@ -1312,7 +1312,7 @@
             return parcelas;
         }
 
-        function adicionarLancamento(lanc) {
+        async function adicionarLancamento(lanc) {
             if (lanc.formaPagamento === 'cartao' && lanc.qtdParcelas > 1) {
                 const novas = gerarParcelas(lanc);
                 lancamentos.push(...novas);
@@ -1323,10 +1323,11 @@
                 if (lanc.cartaoId) lanc.cartaoId = Number(lanc.cartaoId);
                 lancamentos.push(lanc);
             }
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
         }
 
-        function editarLancamento(id, novosDados) {
+        async function editarLancamento(id, novosDados) {
             const index = lancamentos.findIndex(l => l.id === id);
             if (index === -1) return;
             const antigo = lancamentos[index];
@@ -1343,10 +1344,10 @@
                 });
             }
             const novo = { ...novosDados, id: nextIdLancamento++ };
-            adicionarLancamento(novo);
+            await adicionarLancamento(novo);
         }
 
-        function excluirLancamento(id) {
+        async function excluirLancamento(id) {
             const lanc = lancamentos.find(l => l.id === id);
             if (!lanc) return;
             if (lanc.parcelaOriginalId) {
@@ -1362,18 +1363,21 @@
             } else {
                 lancamentos = lancamentos.filter(l => l.id !== id);
             }
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
         }
 
-        function adicionarInvestimento(inv) {
+        async function adicionarInvestimento(inv) {
             inv.id = nextIdInvest++;
             investimentos.push(inv);
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
         }
 
-        function excluirInvestimento(id) {
+        async function excluirInvestimento(id) {
             investimentos = investimentos.filter(i => i.id !== id);
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
         }
 
         function calcularDizimo(mes) {
@@ -1385,8 +1389,8 @@
             return { receitasMes, devido, pago, saldo: devido - pago };
         }
 
-        function registrarPagamentoDizimo(valor, formaPagamento, cartaoId = null) {
-            const mesAtual = getMesAtual();
+        async function registrarPagamentoDizimo(valor, formaPagamento, cartaoId = null) {
+            const mesAtual = mesSelecionado;
             const novo = {
                 id: nextIdLancamento++,
                 data: hoje(),
@@ -1400,7 +1404,7 @@
                 parcelaAtual: 1,
                 mesCompetencia: mesAtual,
             };
-            adicionarLancamento(novo);
+            await adicionarLancamento(novo);
         }
 
         function calcularInvestimentos() {
@@ -1411,8 +1415,8 @@
             return { aportes, resgates, rendimentos, patrimonio };
         }
 
-        function aplicarRendimentoMensal(taxaPercentual) {
-            const mesAtual = getMesAtual();
+        async function aplicarRendimentoMensal(taxaPercentual) {
+            const mesAtual = mesSelecionado;
             const dataInicioMes = new Date();
             dataInicioMes.setDate(1);
             dataInicioMes.setHours(0, 0, 0, 0);
@@ -1438,7 +1442,8 @@
                 categoria: 'Rendimento'
             };
             investimentos.push(novo);
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
             alert(`Rendimento de ${formatarMoeda(rendimento)} aplicado!`);
         }
 
@@ -1457,9 +1462,10 @@
             try {
                 const docRef = doc(db, 'dados', 'principal');
                 await setDoc(docRef, data);
-                console.log('Dados salvos no Firebase');
+                console.log('✅ Dados salvos no Firebase com sucesso!');
             } catch (err) {
-                console.error('Erro ao salvar:', err);
+                console.error('❌ Erro ao salvar no Firebase:', err);
+                alert('Erro ao salvar os dados. Verifique sua conexão com a internet.');
             }
         }
 
@@ -1475,16 +1481,18 @@
                     nextIdLancamento = data.nextIdLancamento || 1;
                     nextIdCartao = data.nextIdCartao || 1;
                     nextIdInvest = data.nextIdInvest || 1;
-                    renderizarTudo();
-                    console.log('Dados carregados do Firebase');
+                    console.log('✅ Dados carregados do Firebase com sucesso!');
+                    return true;
                 } else {
-                    criarDadosExemplo();
-                    await salvarNoFirebase();
-                    renderizarTudo();
+                    console.log('ℹ️ Nenhum dado encontrado no Firebase. Criando dados de exemplo.');
+                    await criarDadosExemplo();
+                    return true;
                 }
             } catch (err) {
-                console.error('Erro ao carregar do Firebase:', err);
+                console.error('❌ Erro ao carregar do Firebase:', err);
+                alert('Erro ao carregar os dados do Firebase. Usando dados locais (fallback).');
                 carregarDoLocalStorage();
+                return false;
             }
         }
 
@@ -1498,14 +1506,11 @@
                     nextIdLancamento = data.nextIdLancamento || 1;
                     nextIdCartao = data.nextIdCartao || 1;
                     nextIdInvest = data.nextIdInvest || 1;
-                    renderizarTudo();
-                } else {
-                    criarDadosExemplo();
                 }
-            } catch (e) { criarDadosExemplo(); }
+            } catch (e) { }
         }
 
-        function criarDadosExemplo() {
+        async function criarDadosExemplo() {
             const hojeStr = hoje();
             const mes = mesAno(hojeStr);
             cartoes = [
@@ -1527,12 +1532,14 @@
                 tipo: 'despesa', valor: 25.5, formaPagamento: 'pix', cartaoId: null, qtdParcelas: 1,
                 parcelaAtual: 1, mesCompetencia: mes };
             lancamentos = [];
-            adicionarLancamento(ex1);
-            adicionarLancamento(ex2);
-            adicionarLancamento(ex3);
-            adicionarLancamento(ex4);
+            // Usar adicionarLancamento com await
+            await adicionarLancamento(ex1);
+            await adicionarLancamento(ex2);
+            await adicionarLancamento(ex3);
+            await adicionarLancamento(ex4);
             investimentos = [{ id: nextIdInvest++, data: hojeStr, descricao: 'Aporte inicial', tipo: 'aporte',
                 valor: 500, categoria: 'CDB' }];
+            await salvarNoFirebase();
         }
 
         // ============================================================
@@ -1540,15 +1547,14 @@
         // ============================================================
         let subtabAtual = 'todos';
         let chartEvolucao, chartCategorias, chartCartoes, chartInvest;
-        let mesSelecionado = getMesAtual(); // mês atual por padrão
+        let mesSelecionado = getMesAtual();
 
         function renderizarTudo() {
-            // Sincroniza o seletor de mês do Dashboard com a variável
+            // Sincroniza os campos de mês
             const inputMes = document.getElementById('mesSelecionado');
             if (inputMes && inputMes.value !== mesSelecionado) {
                 inputMes.value = mesSelecionado;
             }
-            // Sincroniza o filtro de mês da aba Lançamentos
             const filtroMes = document.getElementById('filtroMes');
             if (filtroMes && filtroMes.value !== mesSelecionado) {
                 filtroMes.value = mesSelecionado;
@@ -1567,16 +1573,19 @@
             popularSelectCartoesDizimo();
         }
 
+        // ===== CABEÇALHO CORRIGIDO (filtrado por mês) =====
         function renderizarResumoHeader() {
-            const totalReceitas = lancamentos.filter(l => l.tipo === 'receita').reduce((s, l) => s + l.valor, 0);
-            const totalDespesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((s, l) => s + l.valor, 0);
+            const mes = mesSelecionado;
+            const totalReceitas = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
+                .reduce((s, l) => s + l.valor, 0);
+            const totalDespesas = lancamentos.filter(l => l.tipo === 'despesa' && l.mesCompetencia === mes)
+                .reduce((s, l) => s + l.valor, 0);
             document.getElementById('headerReceitas').textContent = formatarMoeda(totalReceitas);
             document.getElementById('headerDespesas').textContent = formatarMoeda(totalDespesas);
             document.getElementById('headerSaldo').textContent = formatarMoeda(totalReceitas - totalDespesas);
         }
 
         function renderizarDashboard() {
-            // Filtra lançamentos do mês selecionado
             const mes = mesSelecionado;
             const receitasMes = lancamentos.filter(l => l.tipo === 'receita' && l.mesCompetencia === mes)
                 .reduce((s, l) => s + l.valor, 0);
@@ -1592,7 +1601,6 @@
             const { devido } = calcularDizimo(mes);
             document.getElementById('dashDizimo').textContent = formatarMoeda(devido);
 
-            // Patrimônio Investido é global (não filtrado por mês)
             const { patrimonio } = calcularInvestimentos();
             document.getElementById('dashInvest').textContent = formatarMoeda(patrimonio);
 
@@ -1675,7 +1683,6 @@
                 options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
             });
 
-            // Gráfico de investimentos (mantido igual)
             renderizarGraficoInvestimentos();
         }
 
@@ -1968,7 +1975,6 @@
         // Seletor de mês no Dashboard
         document.getElementById('mesSelecionado').addEventListener('change', function(e) {
             mesSelecionado = e.target.value;
-            // Sincroniza com o filtro da aba Lançamentos
             document.getElementById('filtroMes').value = mesSelecionado;
             renderizarTudo();
         });
@@ -1976,7 +1982,6 @@
         // Filtro de mês na aba Lançamentos
         document.getElementById('filtroMes').addEventListener('change', function(e) {
             mesSelecionado = e.target.value;
-            // Sincroniza com o seletor do Dashboard
             document.getElementById('mesSelecionado').value = mesSelecionado;
             renderizarTudo();
         });
@@ -2023,7 +2028,7 @@
             document.getElementById('modalLancamento').classList.remove('show');
         }
 
-        document.getElementById('formLancamento').addEventListener('submit', function(e) {
+        document.getElementById('formLancamento').addEventListener('submit', async function(e) {
             e.preventDefault();
             const editId = document.getElementById('fEditId').value;
             const dados = {
@@ -2047,10 +2052,10 @@
                 return;
             }
             if (editId) {
-                editarLancamento(parseInt(editId), dados);
+                await editarLancamento(parseInt(editId), dados);
             } else {
                 const novo = { id: nextIdLancamento++, ...dados, mesCompetencia: mesAno(dados.data) };
-                adicionarLancamento(novo);
+                await adicionarLancamento(novo);
             }
             fecharModalLancamento();
         });
@@ -2084,7 +2089,7 @@
             document.getElementById('modalCartao').classList.remove('show');
         }
 
-        document.getElementById('formCartao').addEventListener('submit', function(e) {
+        document.getElementById('formCartao').addEventListener('submit', async function(e) {
             e.preventDefault();
             const editId = document.getElementById('cEditId').value;
             const dados = {
@@ -2104,8 +2109,9 @@
             } else {
                 cartoes.push({ id: nextIdCartao++, ...dados });
             }
-            salvarNoFirebase();
+            await salvarNoFirebase();
             fecharModalCartao();
+            renderizarTudo();
         });
 
         document.getElementById('btnAddCartao').addEventListener('click', () => abrirModalCartao(null));
@@ -2118,15 +2124,16 @@
             const cartao = cartoes.find(c => c.id === id);
             if (cartao) abrirModalCartao(cartao);
         };
-        window.excluirCartao = (id) => {
+        window.excluirCartao = async (id) => {
             if (!confirm('Excluir este cartão?')) return;
             cartoes = cartoes.filter(c => c.id !== id);
             lancamentos.forEach(l => { if (l.cartaoId === id) l.cartaoId = null; });
-            salvarNoFirebase();
+            await salvarNoFirebase();
+            renderizarTudo();
         };
 
         // Dízimo
-        document.getElementById('btnPagarDizimo').addEventListener('click', function() {
+        document.getElementById('btnPagarDizimo').addEventListener('click', async function() {
             const mesAtual = mesSelecionado;
             const { saldo } = calcularDizimo(mesAtual);
             if (saldo <= 0.01) { alert('Dízimo já pago.'); return; }
@@ -2140,7 +2147,7 @@
                     if (cartao) cartaoId = cartao.id;
                 }
             }
-            registrarPagamentoDizimo(saldo, forma.toLowerCase(), cartaoId);
+            await registrarPagamentoDizimo(saldo, forma.toLowerCase(), cartaoId);
         });
 
         document.getElementById('btnPagarDizimoPersonalizado').addEventListener('click', function() {
@@ -2152,14 +2159,14 @@
         document.getElementById('modalDizimoPersonalizado').addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('show');
         });
-        document.getElementById('formDizimoPersonalizado').addEventListener('submit', function(e) {
+        document.getElementById('formDizimoPersonalizado').addEventListener('submit', async function(e) {
             e.preventDefault();
             const valor = parseFloat(document.getElementById('dizimoValorPersonalizado').value);
             if (!valor || valor <= 0) { alert('Valor inválido.'); return; }
             const forma = document.getElementById('dizimoFormaPagamento').value;
             let cartaoId = document.getElementById('dizimoCartao').value || null;
             if (cartaoId) cartaoId = Number(cartaoId);
-            registrarPagamentoDizimo(valor, forma, cartaoId);
+            await registrarPagamentoDizimo(valor, forma, cartaoId);
             document.getElementById('modalDizimoPersonalizado').classList.remove('show');
         });
 
@@ -2180,7 +2187,7 @@
             document.getElementById('modalInvestimento').classList.remove('show');
         }
 
-        document.getElementById('formInvestimento').addEventListener('submit', function(e) {
+        document.getElementById('formInvestimento').addEventListener('submit', async function(e) {
             e.preventDefault();
             const editId = document.getElementById('invEditId').value;
             const dados = {
@@ -2194,9 +2201,9 @@
             if (editId) {
                 const index = investimentos.findIndex(i => i.id === parseInt(editId));
                 if (index !== -1) investimentos[index] = { ...investimentos[index], ...dados };
-                salvarNoFirebase();
+                await salvarNoFirebase();
             } else {
-                adicionarInvestimento(dados);
+                await adicionarInvestimento(dados);
             }
             fecharModalInvestimento();
         });
@@ -2210,16 +2217,16 @@
             if (e.target === this) fecharModalInvestimento();
         });
 
-        document.getElementById('btnAplicarRendimento').addEventListener('click', function() {
+        document.getElementById('btnAplicarRendimento').addEventListener('click', async function() {
             const taxa = parseFloat(document.getElementById('taxaRendimento').value);
             if (isNaN(taxa) || taxa <= 0) { alert('Taxa inválida.'); return; }
             if (!confirm(`Aplicar rendimento de ${taxa}%?`)) return;
-            aplicarRendimentoMensal(taxa);
+            await aplicarRendimentoMensal(taxa);
         });
 
-        window.excluirInvestimento = (id) => {
+        window.excluirInvestimento = async (id) => {
             if (!confirm('Excluir esta movimentação?')) return;
-            excluirInvestimento(id);
+            await excluirInvestimento(id);
         };
 
         // Export/Import
@@ -2238,11 +2245,11 @@
             document.getElementById('fileInput').click();
         });
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(ev) {
+            reader.onload = async function(ev) {
                 try {
                     const data = JSON.parse(ev.target.result);
                     if (data.lancamentos && data.cartoes) {
@@ -2252,8 +2259,9 @@
                         nextIdLancamento = lancamentos.reduce((max, l) => Math.max(max, l.id), 0) + 1;
                         nextIdCartao = cartoes.reduce((max, c) => Math.max(max, c.id), 0) + 1;
                         nextIdInvest = investimentos.reduce((max, i) => Math.max(max, i.id), 0) + 1;
-                        salvarNoFirebase();
+                        await salvarNoFirebase();
                         alert('Dados importados!');
+                        renderizarTudo();
                     } else {
                         alert('Arquivo inválido.');
                     }
@@ -2282,11 +2290,12 @@
         //  INICIALIZAÇÃO
         // ============================================================
         await carregarDoFirebase();
-        // Após carregar, definir o mês selecionado como o atual e atualizar os campos
+        // Define o mês selecionado como o atual e sincroniza
         mesSelecionado = getMesAtual();
         document.getElementById('mesSelecionado').value = mesSelecionado;
         document.getElementById('filtroMes').value = mesSelecionado;
         renderizarTudo();
+        console.log('🚀 Sistema inicializado com sucesso!');
     </script>
 </body>
 </html>
