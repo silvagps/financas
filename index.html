@@ -347,6 +347,13 @@
         .btn-teal:hover {
             background: #b2dfdb;
         }
+        .btn-secondary {
+            background: #e3f0ff;
+            color: #0b4f8c;
+        }
+        .btn-secondary:hover {
+            background: #cce4ff;
+        }
 
         .tabela-wrapper {
             overflow-x: auto;
@@ -395,6 +402,12 @@
         .acoes {
             display: flex;
             gap: 6px;
+        }
+        .selecionar-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2a6df4;
         }
 
         /* ===== FILTROS ===== */
@@ -695,7 +708,7 @@
             }
             .tabela-wrapper table {
                 font-size: 12px;
-                min-width: 600px;
+                min-width: 700px;
             }
             .tabela-wrapper th,
             .tabela-wrapper td {
@@ -757,6 +770,13 @@
             .mes-selector-container label {
                 font-size: 14px;
             }
+            .toolbar .left {
+                gap: 6px;
+            }
+            .toolbar .left .btn {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -804,7 +824,7 @@
             }
             .tabela-wrapper table {
                 font-size: 11px;
-                min-width: 500px;
+                min-width: 600px;
             }
             .tabela-wrapper th,
             .tabela-wrapper td {
@@ -882,7 +902,7 @@
                 max-height: 120px;
             }
             .toolbar .left {
-                gap: 6px;
+                gap: 4px;
             }
             .toolbar .left .btn {
                 font-size: 11px;
@@ -941,6 +961,9 @@
             <div class="toolbar">
                 <div class="left">
                     <button class="btn btn-primary" id="btnAdicionar">➕ Novo Lançamento</button>
+                    <button class="btn btn-secondary" id="btnCopiarSelecionados">📋 Copiar selecionados para o mês atual</button>
+                    <button class="btn btn-sm" id="btnSelecionarTodos">✅ Selecionar todos</button>
+                    <button class="btn btn-sm" id="btnDesmarcarTodos">❌ Desmarcar todos</button>
                     <button class="btn" id="btnExportar">📥 Exportar</button>
                     <button class="btn" id="btnImportar">📤 Importar</button>
                     <input type="file" id="fileInput" accept=".json" style="display:none">
@@ -993,11 +1016,20 @@
             <div class="tabela-wrapper">
                 <table>
                     <thead>
-                        <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th>
-                            <th>Pagamento</th><th>Parcela</th><th style="width:100px;">Ações</th></tr>
+                        <tr>
+                            <th style="width:30px;">Selecionar</th>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th>Pagamento</th>
+                            <th>Parcela</th>
+                            <th style="width:100px;">Ações</th>
+                        </tr>
                     </thead>
                     <tbody id="tabelaLancamentos">
-                        <tr><td colspan="8" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>
+                        <tr><td colspan="9" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1448,6 +1480,71 @@
         }
 
         // ============================================================
+        //  FUNÇÃO PARA COPIAR LANÇAMENTOS SELECIONADOS PARA O MÊS ATUAL
+        // ============================================================
+        async function copiarSelecionadosParaMesAtual() {
+            const checkboxes = document.querySelectorAll('.selecionar-lancamento:checked');
+            if (checkboxes.length === 0) {
+                alert('Nenhum lançamento selecionado.');
+                return;
+            }
+            const ids = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+            const selecionados = lancamentos.filter(l => ids.includes(l.id));
+            if (selecionados.length === 0) {
+                alert('Lançamentos selecionados não encontrados.');
+                return;
+            }
+
+            const mesDestino = mesSelecionado; // mês atual
+            const [anoDest, mesDest] = mesDestino.split('-').map(Number);
+
+            // Função para ajustar a data para o mês destino
+            function ajustarData(dataOriginal) {
+                const d = new Date(dataOriginal + 'T00:00:00');
+                const dia = d.getDate();
+                // Criar data no mês destino com o mesmo dia
+                let novaData = new Date(anoDest, mesDest - 1, dia);
+                // Se o dia não existir no mês destino, ajustar para o último dia do mês
+                if (novaData.getMonth() !== mesDest - 1) {
+                    novaData = new Date(anoDest, mesDest, 0); // último dia do mês
+                }
+                return novaData.toISOString().split('T')[0];
+            }
+
+            // Criar cópias dos lançamentos
+            const novasLancamentos = selecionados.map(l => {
+                const novaData = ajustarData(l.data);
+                // Gerar novo ID
+                const novoId = nextIdLancamento++;
+                return {
+                    ...l,
+                    id: novoId,
+                    data: novaData,
+                    mesCompetencia: mesDestino,
+                    parcelaOriginalId: null, // remove vínculo com parcela original
+                    // Manter descrição, categoria, tipo, valor, formaPagamento, cartaoId, qtdParcelas, parcelaAtual
+                };
+            });
+
+            // Adicionar os novos lançamentos
+            lancamentos.push(...novasLancamentos);
+            await salvarNoFirebase();
+            renderizarTudo();
+            alert(`${novasLancamentos.length} lançamento(s) copiado(s) para o mês ${nomeMes(mesDestino)}.`);
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE SELEÇÃO EM MASSA
+        // ============================================================
+        function selecionarTodos() {
+            document.querySelectorAll('.selecionar-lancamento').forEach(cb => cb.checked = true);
+        }
+
+        function desmarcarTodos() {
+            document.querySelectorAll('.selecionar-lancamento').forEach(cb => cb.checked = false);
+        }
+
+        // ============================================================
         //  SALVAR E CARREGAR DO FIREBASE (modular)
         // ============================================================
         async function salvarNoFirebase() {
@@ -1722,7 +1819,7 @@
             });
         }
 
-        // ===== TABELA LANÇAMENTOS =====
+        // ===== TABELA LANÇAMENTOS (com checkbox) =====
         function renderizarTabelaLancamentos() {
             const tbody = document.getElementById('tabelaLancamentos');
             const filtroMes = document.getElementById('filtroMes').value;
@@ -1778,7 +1875,7 @@
 
             if (!lista.length) {
                 tbody.innerHTML =
-                    `<tr><td colspan="8" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>`;
+                    `<tr><td colspan="9" style="text-align:center;padding:28px;color:#7a8a9e;">Nenhum lançamento.</td></tr>`;
                 return;
             }
 
@@ -1789,6 +1886,7 @@
                 const parcelaInfo = l.qtdParcelas > 1 ? `${l.parcelaAtual}/${l.qtdParcelas}` : (l.parcelaOriginalId ?
                     'Parcela' : '');
                 html += `<tr>
+                    <td><input type="checkbox" class="selecionar-lancamento" data-id="${l.id}"></td>
                     <td>${l.data}</td>
                     <td>${l.descricao}</td>
                     <td>${l.categoria}</td>
@@ -1805,7 +1903,7 @@
             tbody.innerHTML = html;
         }
 
-        // ===== CARTÕES (CORRIGIDO - FILTRADO POR MÊS) =====
+        // ===== CARTÕES (filtrado por mês) =====
         function renderizarCartoes() {
             const grid = document.getElementById('listaCartoes');
             if (!cartoes.length) {
@@ -1814,9 +1912,9 @@
             }
             let html = '';
             cartoes.forEach(c => {
-                // Filtra gastos apenas do mês selecionado
                 const gastos = lancamentos
-                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId === c.id && l.mesCompetencia === mesSelecionado)
+                    .filter(l => l.tipo === 'despesa' && l.formaPagamento === 'cartao' && l.cartaoId === c.id && l
+                        .mesCompetencia === mesSelecionado)
                     .reduce((s, l) => s + l.valor, 0);
                 const saldoDisponivel = c.limite - gastos;
                 const cor = saldoDisponivel >= 0 ? '#0f9d58' : '#d93025';
@@ -1998,6 +2096,11 @@
             document.getElementById('filtroCartao').value = '';
             renderizarTabelaLancamentos();
         });
+
+        // Botões de seleção e cópia
+        document.getElementById('btnCopiarSelecionados').addEventListener('click', copiarSelecionadosParaMesAtual);
+        document.getElementById('btnSelecionarTodos').addEventListener('click', selecionarTodos);
+        document.getElementById('btnDesmarcarTodos').addEventListener('click', desmarcarTodos);
 
         // Modal Lançamento
         function abrirModalLancamento(dados) {
